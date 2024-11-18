@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.MyInfo">
+		
+	<select id="select" parameterType="myInfoDto" resultType="myInfoDto">
+		SELECT
+			SEQ_MBR, EMAIL, PASSWD, CD_STATE, MBR_NM, GENDER, PHONE, POST, ADDR1, ADDR2, FLG_SMS, DT_SMS, FLG_EMAIL, DT_EMAIL, DT_REG, REGISTER
+		FROM
+			TB_MBR
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+	</select>
+
+</mapper>

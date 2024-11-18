@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.backoffice.mybatis.main.Main">
+	
+	<select id="salesList" parameterType="buyDetailDto" resultType="buyDetailDto">
+		SELECT
+			SUM(TB_BUY_DTL.PRICE) priceTotal
+			, TB_SLL.SLL_NM
+			, TO_CHAR(TB_BUY_DTL.DT_REG,'YYYY-MM') period
+		FROM
+			TB_BUY_DTL
+			LEFT JOIN TB_SLE
+			ON TB_BUY_DTL.SEQ_SLE = TB_SLE.SEQ_SLE
+			LEFT JOIN TB_SLL
+			ON TB_SLL.SEQ_SLL = TB_SLE.REGISTER
+		GROUP BY
+			TO_CHAR(TB_BUY_DTL.DT_REG,'YYYY-MM')
+			, TB_SLL.SLL_NM
+		ORDER BY
+			SLL_NM
+			, TO_CHAR(TB_BUY_DTL.DT_REG,'YYYY-MM') DESC
+	</select>
+	
+	<select id="outList" parameterType="memberDto" resultType="memberDto">
+		SELECT
+			ROWNUM
+			, mbr.*
+		FROM
+			(
+			SELECT
+				COUNT(SEQ_MBR) seq_mbr
+				, TO_CHAR(DT_REG,'YYYY-MM') dt_reg
+			FROM
+				 TB_MBR
+			WHERE
+				CD_STATE in (8, 9)
+				AND TO_CHAR(DT_REG,'YYYY-MM') > TO_CHAR(ADD_MONTHS(SYSDATE, -5), 'YYYY-MM')
+			GROUP BY
+				TO_CHAR(DT_REG,'YYYY-MM')
+			ORDER BY
+				DT_REG DESC
+			) mbr
+		WHERE
+		<![CDATA[
+			ROWNUM <= 5
+		]]>
+	</select>
+	
+	<select id="joinList" parameterType="memberDto" resultType="memberDto">
+		SELECT
+			ROWNUM
+			, mbr.*
+		FROM
+			(
+			SELECT
+				COUNT(SEQ_MBR) seq_mbr
+				, TO_CHAR(DT_REG,'YYYY-MM') dt_reg
+			FROM
+				 TB_MBR
+			WHERE
+				CD_STATE = 1
+				AND TO_CHAR(DT_REG,'YYYY-MM') > TO_CHAR(ADD_MONTHS(SYSDATE, -5), 'YYYY-MM')
+			GROUP BY
+				TO_CHAR(DT_REG,'YYYY-MM')
+			ORDER BY
+				DT_REG DESC
+			) mbr
+		WHERE
+		<![CDATA[
+			ROWNUM <= 5
+		]]>
+	</select>
+	
+	<select id="visitorList" parameterType="visitorDto" resultType="visitorDto">
+		SELECT
+			ROWNUM
+			, vst.*
+		FROM 
+			(
+			SELECT
+				YEAR
+				, LPAD(MONTH,2,0) month
+				, VISITOR
+			FROM
+				TB_VST
+			ORDER BY
+				 YEAR DESC, MONTH DESC
+			) vst
+		where
+		<![CDATA[
+			ROWNUM <= 12
+		]]>
+	</select>
+	
+	<select id="saleList" parameterType="sellerDto" resultType="sellerDto">
+		SELECT
+			ROWNUM
+			, SLL.*
+		FROM
+			(
+			SELECT
+				SEQ_SLL
+				, SLL_NM
+				, (SELECT COUNT(*) FROM TB_SLE WHERE TB_SLL.SEQ_SLL = TB_SLE.REGISTER) SALE
+			FROM
+				TB_SLL
+			WHERE
+				CD_STATE = 1
+			ORDER BY
+				SALE DESC
+			) SLL
+		WHERE
+		<![CDATA[
+			ROWNUM <= 4
+		]]>
+	</select>
+	
+	<select id="visit" parameterType="visitorDto" resultType="java.lang.Integer">
+		SELECT
+			VISITOR
+		FROM
+			TB_VST
+		WHERE
+			YEAR = #{year}
+			AND MONTH = #{month}
+	</select>
+	
+	<select id="sale" parameterType="saleDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_SLE)
+		FROM
+			TB_SLE
+		WHERE
+			CD_STATE_SALE = 1
+	</select>
+	
+	<select id="seller" parameterType="sellerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_SLL)
+		FROM
+			TB_SLL
+		WHERE
+			CD_STATE = 1
+	</select>
+	
+	<select id="member" parameterType="memberDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_MBR)
+		FROM
+			TB_MBR
+		WHERE
+			CD_STATE = 1
+	</select>
+	
+</mapper>

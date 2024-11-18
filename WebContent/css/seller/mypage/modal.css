@@ -1,0 +1,53 @@
+/* 공통 */
+.btn {
+	min-width: 200px; /* 버튼의 최소 너비 설정 */
+	font-size: 20px; /* 버튼 글자 크기 설정 */
+}
+
+.btn-danger {
+	background-color: #dc3545; /* 빨간색 */
+	border: none;
+}
+
+.btn-danger:hover {
+	background-color: #c82333; /* 호버 시 색상 변경 */
+}
+
+.custom-modal {
+	width: 50vw; /* 뷰포트 너비의 50% */
+	height: 50vh; /* 뷰포트 높이의 50% */
+}
+
+.modal-dialog {
+	display: flex;
+	align-items: center; /* 수직 중앙 정렬 */
+	justify-content: center; /* 수평 중앙 정렬 */
+	min-height: 80vh; /* 화면 높이 전체 사용 */
+}
+
+.modal-header {
+	border-bottom: 2px solid #f00; /* 헤더 아래선 */
+}
+
+.modal-footer {
+	border-top: 1px solid #ccc; /* 푸터 위선 */
+}
+
+.text-danger {
+	font-weight: bold;
+}
+
+
+/* 수정 모달 */
+.custom-bg {
+background-color: #d6ccbc; /* 아이보리 색상 */
+}
+
+#confirmModify {
+background-color: #d6ccbc; /* 아이보리 색상 */
+color: #ffffff; /* 텍스트 색상: 검정 */
+}
+
+#confirmModify:hover {
+background-color: #FAEBD7; /* 마우스 오버 시 색상 변경 */
+}

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.backoffice.mybatis.users.Manager">
+	
+	<update id="changePasswd" parameterType="managerDto">
+		UPDATE TB_MNG
+		SET
+			PASSWD = #{passwd}
+		WHERE
+			MNG_NM			= #{mng_nm}
+			AND PHONE		= #{phone}
+			AND ID			= #{id}
+			AND CD_STATE	= 1
+	</update>
+	
+	<select id="findPasswd" parameterType="managerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PASSWD)
+		FROM
+			TB_MNG
+		WHERE
+			MNG_NM			= #{mng_nm}
+			AND PHONE		= #{phone}
+			AND ID			= #{id}
+			AND CD_STATE	= 1
+	</select>
+	
+	<select id="findId" parameterType="managerDto" resultType="managerDto">
+		SELECT
+			MNG_NM
+			, ID
+		FROM
+			TB_MNG
+		WHERE
+			MNG_NM			= #{mng_nm}
+			AND PHONE		= #{phone}
+			AND CD_STATE	= 1
+	</select>
+	
+	<select id="selectCertification" parameterType="managerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PHONE)
+		FROM
+			TB_MNG
+		WHERE
+			PHONE = #{phone}
+	</select>
+	
+	<select id="selectEmailDuplicate" parameterType="managerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(EMAIL)
+		FROM
+			TB_MNG
+		WHERE
+			EMAIL = #{email}
+	</select>
+	
+	<select id="selectIdDuplicate" parameterType="managerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			TB_MNG
+		WHERE
+			ID = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="managerDto">
+		INSERT INTO TB_MNG
+			(SEQ_MNG, ID, PASSWD, CD_STATE, MNG_LEVEL, MNG_NM, EMAIL, PHONE, POST, ADDR1, ADDR2, DT_REG, REGISTER, DT_UPT, UPDATER)
+		VALUES
+			(#{seq_mng}, #{id}, #{passwd}, #{cd_state}, 9, #{mng_nm}, #{email}, #{phone}, #{post}, #{addr1}, #{addr2}, SYSDATE, #{register}, NULL, NULL)
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_MNG.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="select" parameterType="managerDto" resultType="managerDto">
+		SELECT
+			SEQ_MNG, ID, PASSWD, CD_STATE, MNG_LEVEL, MNG_NM, EMAIL, PHONE, POST, ADDR1, ADDR2, DT_REG, REGISTER, DT_UPT, UPDATER
+		FROM
+			TB_MNG
+		WHERE
+			SEQ_MNG = #{seq_mng}
+	</select>
+	
+	<select id="selectPasswd" parameterType="managerDto" resultType="managerDto">
+		SELECT
+			PASSWD
+		FROM
+			TB_MNG
+		WHERE
+			SEQ_MNG = #{seq_mng}
+	</select>
+	
+	<update id="updatePasswd" parameterType="managerDto">
+		UPDATE
+			TB_MNG
+		SET
+			PASSWD		= #{passwd}
+			, UPDATER	= #{updater}
+			, DT_UPT	= SYSDATE
+		WHERE
+			SEQ_MNG		= #{seq_mng}
+	</update>
+	
+</mapper>

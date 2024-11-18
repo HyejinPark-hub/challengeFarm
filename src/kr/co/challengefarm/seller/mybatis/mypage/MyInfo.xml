@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.seller.mybatis.mypage.MyInfo">
+	
+	<select id="select" parameterType="myInfoDto" resultType="myInfoDto">
+		SELECT
+			SEQ_SLL, ID, PASSWD, CD_STATE, SLL_NM, EMAIL, PHONE, CORP_NM, CORP_NUM, CORP_BIRTHDAY, CORP_CEO, POST, ADDR1, ADDR2, INTRO, DT_REG, REGISTER
+		FROM
+			TB_SLL
+		WHERE
+			SEQ_SLL = #{seq_sll}
+	</select>
+	
+</mapper>

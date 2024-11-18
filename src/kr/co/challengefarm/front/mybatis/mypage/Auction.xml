@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.Auction">
+	
+	<select id="state" parameterType="bidDto" resultType="auctionDto">
+		SELECT
+			CD_STATE_ACT
+			, REJECT
+		FROM
+			TB_ACT
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</select>
+	
+	<select id="listBid" parameterType="bidDto" resultType="bidDto">
+		SELECT
+			BID_PRICE
+			, TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+			, (SELECT MBR_NM FROM TB_MBR WHERE TB_BID.SEQ_MBR = TB_MBR.SEQ_MBR) mbr_nm
+			, (SELECT PRICE FROM TB_ACT WHERE TB_BID.SEQ_ACT = TB_ACT.SEQ_ACT) act_price
+		FROM
+			TB_BID
+		WHERE
+			SEQ_ACT = #{seq_act}
+			AND (FLG_GIVEUP IS NULL OR FLG_GIVEUP = 'N')
+		ORDER BY
+			BID_PRICE DESC
+	</select>
+	
+	<select id="joinCount" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(ROWNUM)
+		FROM 
+			TB_ACT act
+		JOIN 
+			TB_BID bid
+		ON
+			act.SEQ_ACT = bid.SEQ_ACT
+		WHERE
+			bid.SEQ_MBR = #{seq_mbr}
+		AND
+			act.CD_STATE_ACT = 1
+	</select>
+	
+	<select id="joinList" parameterType="pagingDto" resultType="AuctionDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY bid.DT_REG DESC) rnum
+				,act.SEQ_ACT
+				,act.IMG
+				,act.ACT_NM
+				,act.SUCCESS
+				,TO_CHAR(act.DT_ACT_START, 'YYYY-MM-DD') dt_act_start
+				,TO_CHAR(act.DT_ACT_END, 'YYYY-MM-DD') dt_act_end
+				,bid.SEQ_BID
+				,TO_CHAR(bid.DT_REG, 'YYYY-MM-DD') dt_reg
+				,CASE 
+					WHEN act.SUCCESS IS NULL THEN '진행중'
+					WHEN act.SUCCESS = 'Y' AND FLG_SUCCESS = 'Y' THEN '낙찰'
+					WHEN act.SUCCESS = 'Y' AND FLG_SUCCESS = 'N' THEN '실패'
+					ELSE '유찰'
+				END as flg_success
+			FROM 
+				TB_ACT act
+			JOIN 
+				TB_BID bid
+			ON
+				act.SEQ_ACT = bid.SEQ_ACT
+			WHERE
+				bid.SEQ_MBR = #{seq_mbr}
+			AND
+				act.CD_STATE_ACT = 1
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(ROWNUM)
+		FROM 
+			TB_ACT
+		WHERE
+			REGISTER =	#{register}
+		<if test="cd_state_act != 'all' and cd_state_act != '' and cd_state_act != null">
+			AND CD_STATE_ACT = #{cd_state_act}
+		</if>
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="AuctionDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY DT_ACT_START ASC) rnum
+				,SEQ_ACT
+				,IMG
+				,ACT_NM
+				,TO_CHAR(DT_ACT_START, 'YYYY-MM-DD') dt_act_start
+				,TO_CHAR(DT_ACT_END, 'YYYY-MM-DD') dt_act_end
+				,CD_STATE_ACT
+			FROM 
+				TB_ACT
+			WHERE 
+				REGISTER =	#{register}
+			<if test="cd_state_act != 'all' and cd_state_act != '' and cd_state_act != null">
+				AND CD_STATE_ACT = #{cd_state_act}
+			</if>
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<delete id="deleteDtlImg" parameterType="auctionDtlImgDto">
+		DELETE FROM TB_ACT_IMG
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</delete>
+	
+	<update id="update" parameterType="auctionDto">
+		UPDATE TB_ACT
+		SET
+			ACT_NM			= #{act_nm}
+			, PRICE			= #{price}
+			, DESCES		= #{desces}
+			<if test="img != '' and img != null">
+			, IMG			= #{img}
+			</if>
+			, BUY_YEAR		= #{buy_year}
+			, ACT_STATE		= #{act_state}
+			, DT_ACT_START	= #{dt_act_start}
+			, DT_ACT_END	= TO_DATE(#{dt_act_end}, 'YYYY-MM-DD HH24:MI:SS')
+			, DT_UPT		= SYSDATE
+			, UPDATER		= #{updater}
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</update>
+	
+	<select id="selectImgs" parameterType="auctionDto" resultType="auctionDtlImgDto">
+		SELECT
+			IMG
+		FROM
+			TB_ACT_IMG
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</select>
+	
+	<select id="select" parameterType="auctionDto" resultType="auctionDto">
+		SELECT
+			SEQ_ACT
+			, ACT_NM
+			, PRICE
+			, DESCES
+			, IMG
+			, BUY_YEAR
+			, ACT_STATE
+			, DT_ACT_START
+			, DT_ACT_END
+		FROM
+			TB_ACT
+		WHERE
+			SEQ_ACT = #{seq_act}
+			AND SUCCESS IS NULL
+			AND CD_STATE_ACT = 0
+	</select>
+	
+	<insert id="insertImg" parameterType="auctionDtlImgDto">
+		INSERT INTO TB_ACT_IMG
+			(SEQ_ACT_IMG, SEQ_ACT, IMG, DT_REG, REGISTER)
+		VALUES
+			(#{seq_act_img}, #{seq_act}, #{img}, SYSDATE, #{register})
+	</insert>
+	
+	<select id="detailSequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_ACT_IMG.NEXTVAL FROM DUAL
+	</select>
+	
+	<insert id="insert" parameterType="auctionDto">
+		INSERT INTO TB_ACT
+			(SEQ_ACT, ACT_NM, PRICE, DESCES, IMG, BUY_YEAR, ACT_STATE, DT_ACT_START, DT_ACT_END, HEART, SUCCESS, SEQ_MBR, CD_STATE_ACT, REJECT, DT_REG, REGISTER, DT_UPT, UPDATER)
+		VALUES
+			(#{seq_act}, #{act_nm}, #{price}, #{desces}, #{img}, #{buy_year}, #{act_state}, #{dt_act_start}, TO_DATE(#{dt_act_end}, 'YYYY-MM-DD HH24:MI:SS'), 0, NULL, NULL, 0, NULL, SYSDATE, #{register}, NULL, NULL)
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_ACT.NEXTVAL FROM DUAL
+	</select>
+	
+</mapper>

@@ -1,0 +1,60 @@
+:root {
+	--gray-light: #E2E2E2;
+}
+
+/*******************
+구매자 - 장바구니/결제
+********************/
+.essential {position:relative;}
+.essential::before {content:"*";position:absolute;top:0;left:-8px;width:5px;height:5px;color:red;}
+
+
+.shopping__cart__table {text-align:center;}
+		
+.product__cart__item__pic {width:100px;overflow:hidden;}
+.product__cart__item {text-align:left;}
+.col-lg-8 {max-width:unset;}
+
+.shopping__cart__table table tbody tr td.product__cart__item .product__cart__item__text {padding-top:unset;}
+.shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 {margin:0 auto;}
+
+.price_cost {text-decoration:line-through;}
+.red {color:var(--red);}
+
+.changeCnt span {position:relative;cursor:pointer;;color:#888;}
+.changeCnt span::before {position:absolute;top:-13px}
+.changeCnt span.minusCnt::before {content:"\f104";left:-7px;}
+.changeCnt span.plusCnt::before {content:"\f105";right:-7px;}
+.changeCnt input {width: 50px;border: none;text-align: center;color: #111111;font-size: 16px;}
+
+.col-lg-8 > div {margin-bottom:50px;}
+
+.orderTitle {text-align:left;font-size:20px;font-weight:bold;}
+.shopping__cart__table table.orderTable thead tr th {padding-bottom:10px;font-size:12px;font-weight:normal;}
+.shopping__cart__table table.orderTable tbody tr td {padding:0;}
+.shopping__cart__table table.orderTable tbody tr td.product__cart__item .product__cart__item__text {width:calc(100% - 130px);}
+.shopping__cart__table table.orderTable tbody tr td .product__cart__item__pic {padding:10px 0;}
+.shopping__cart__table table.orderTable tbody tr td .product__cart__item__pic img {width:80px;}
+
+.dlvTable > div {display:flex;margin-bottom:10px;}
+.dlvTable p {width:150px;text-indent:8px;}
+.dlvTable input, .dlvTable textarea {width:450px;padding:10px 5px;border:1px solid var(--gray-light);}
+.dlvTable #post {width:295.9px;}
+.dlvTable input[type=button] {width:150px;}
+.dlvTable > div > div {width:450px;}
+.dlvTable > div > div input {margin-bottom:5px;}
+.dlvTable #message {width:450px;height:92px;resize:none;}
+
+.payInfo {text-align:center;}
+.payInfo ul {display:flex;justify-content:center;align-items:center;}
+.payInfo ul li {position:relative;margin:0 30px;overflow:inherit;}
+.payInfo ul li:nth-child(2) {color:var(--red);}
+.payInfo ul li::before {position:absolute;top:0;right:-35px;width:10px;height:10px;font-size:20px;}
+.payInfo ul li:nth-child(1)::before {content: "-";}
+.payInfo ul li:nth-child(2)::before {content: "=";color:black;}
+.payInfo ul li em {margin-right:5px;font-weight:bold;font-size:25px;}
+.payInfo input[type=button] {width:300px;margin:0 auto;}
+
+@media (min-width: 992px) {
+	.col-lg-4 {max-width:unset;}
+}

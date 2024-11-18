@@ -1,0 +1,51 @@
+/* 경매 상세페이지 채팅 */
+.chatArea {width:780px;height:500px;margin:0 auto;padding:10px 5px 10px 15px;border:1px solid black;border-radius:10px;}
+.chatView {height:calc(100% - 50px);margin-bottom:10px;}
+.chatView ~ p {margin-top:5px;}
+.chatView ul {width:100%;max-height:100%;padding-right:5px;overflow-y:scroll;}
+.chatView ul::-webkit-scrollbar {width:5px;}
+.chatView ul::-webkit-scrollbar-thumb {background-color:#eee;border-radius:10px;}
+.chatView ul li {text-align:left;padding:3px 0;}
+.chatView ul li.myChat {text-align:right;}
+.chatView ul li p {display:inline-block;max-width:65%;margin-bottom:0;padding:4px 10px;background:aliceblue;}
+.chatView ul li.myChat p {right:0;background:pink;}
+.chatText {display:flex;justify-content:space-between;height:40px;padding-right:10px;}
+.chatText input[type=text] {width:calc(100% - 80px);text-indent:5px;}
+.chatText input[type=button] {width:70px;height:40px;line-height:40px;color:white;background:black;border:none;}
+
+
+/* 마이페이지 입찰 내역 */
+.shop.spad .container article {width:83%;}
+
+.auctionItem > p {line-height:200px;text-align:center;}
+.auctionItem li {display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.auctionItem li.act_price {/*display:block;*/width:100%;margin-bottom:15px;padding:0 100px 0 75px;text-align:center;}
+.auctionItem li.act_price span {min-width:130px;}
+.auctionItem li.act_price span:first-child {text-align:left;}
+.auctionItem li.act_price span:last-child {text-align:right;}
+.auctionItem li > p {font-size:18px;}
+.auctionItem li p.mbr_nm {min-width:73px;letter-spacing:5px;}
+.auctionItem li p.bid_price {min-width:100px;text-align:right;}
+.priceGraph {position:relative;width:calc(100% - 190px);height:30px;background:#eee;border-radius:20px;overflow:hidden;}
+.priceGraph span {position:absolute;top:0;left:0;display:inline-block;height:100%;background:var(--blue);}
+
+#btnArea {margin-top:40px;margin-bottom:100px;text-align:center;}
+#btnArea a {display: inline-block;width: 300px;height: 50px;margin: 30px auto 0;line-height: 50px;border-radius: 10px;background: white;color: var(--gray);border: 1px solid var(--gray);}
+
+.reject ul {display:flex;border:1px solid #ddd;border-radius:10px;}
+.reject ul li {padding:10px;}
+.reject ul li:first-child {border-right:1px solid #ddd;}
+.reject ul li:last-child {min-height:200px;}
+
+
+@media only screen and (max-width:991px) {
+	.shop.spad .container article {width:100%;}
+}
+
+@media only screen and (max-width:767px) {
+	.auctionItem li.act_price span {min-width:80px;}
+}
+
+@media only screen and (max-width:575px) {
+	.shop.spad .container article {width:100%;padding:0 10px;}
+}

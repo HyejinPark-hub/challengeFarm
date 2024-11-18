@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="kr.co.challengefarm.backoffice.common.dto.PagingDto"			alias="pagingDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.auction.dto.AuctionDto"		alias="auctionDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.auction.dto.AuctionDtlImgDto"	alias="auctionDtlImgDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.center.dto.BoardDto"			alias="boardDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.center.dto.BoardFileDto"		alias="boardFileDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.login.dto.LoginDto"			alias="loginDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.users.dto.ManagerDto"			alias="managerDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.users.dto.MemberListDto"		alias="memberListDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.users.dto.SellerListDto"		alias="sellerListDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.users.dto.ManagerListDto"		alias="managerListDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.sale.dto.SaleDto"				alias="saleDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.sale.dto.SaleDtlImgDto"		alias="saleDtlImgDto" />
+		<typeAlias type="kr.co.challengefarm.backoffice.sales.dto.SalesDto"			alias="salesDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyDetailDto"				alias="buyDetailDto" />
+		<typeAlias type="kr.co.challengefarm.front.main.dto.VisitorDto"				alias="visitorDto" />
+		<typeAlias type="kr.co.challengefarm.front.member.dto.MemberDto"				alias="memberDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sellers.dto.SellerDto"				alias="sellerDto" />
+	</typeAliases>
+	<mappers>
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/auction/Auction.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/center/Board.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/login/Login.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/main/Main.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/sale/Sale.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/sales/Sales.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/users/Manager.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/users/MemberList.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/users/SellerList.xml" />
+		<mapper resource="kr/co/challengefarm/backoffice/mybatis/users/ManagerList.xml" />
+	</mappers>
+</configuration>

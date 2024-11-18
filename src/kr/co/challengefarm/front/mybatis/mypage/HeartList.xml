@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.HeartList">
+
+<update id="update" parameterType="heartDto">
+	UPDATE
+		TB_SLE
+	SET
+		<if test="process == 'insert'">
+			HEART = HEART + 1
+		</if>
+		<if test="process == 'delete'">
+			HEART = HEART - 1
+		</if>
+	WHERE
+		SEQ_SLE = #{seq_sle}
+</update>
+
+<insert id="insert" parameterType="HeartDto">
+	INSERT INTO TB_HRT (SEQ_SLE, SEQ_MBR, DT_REG, FLG_DELETE)
+	VALUES (#{seqSle}, #{seqMbr}, SYSDATE, NULL)
+</insert>
+
+<delete id="delete" parameterType="HeartDto">
+	DELETE 
+	FROM TB_HRT
+	WHERE SEQ_SLE = #{seqSle} AND SEQ_MBR = #{seqMbr}
+</delete>
+
+<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+	SELECT COUNT(ROWNUM)
+	FROM TB_HRT hrt
+	WHERE hrt.SEQ_MBR = #{register}
+		AND (hrt.FLG_CANCEL IS NULL OR hrt.FLG_CANCEL = 'N')
+		AND (hrt.FLG_SLE_DELETE IS NULL OR hrt.FLG_SLE_DELETE = 'N')
+</select>
+
+<select id="list" parameterType="pagingDto" resultType="heartListDto">
+	SELECT
+	*
+	FROM
+	(
+		SELECT 
+			/*+ first_rows(10) */ 
+			ROW_NUMBER() OVER (ORDER BY hrt.DT_REG DESC) rnum,
+			sle.IMG sle_img,  -- 중복 제거
+			sle.SLE_NM,
+			hrt.SEQ_HRT,
+			hrt.SEQ_SLE,
+			hrt.SEQ_MBR,
+			TO_CHAR(hrt.DT_REG, 'YYYY-MM-DD') dt_reg
+		FROM 
+			TB_HRT hrt
+		JOIN 
+			TB_SLE sle ON hrt.SEQ_SLE = sle.SEQ_SLE	
+		WHERE 
+			hrt.SEQ_MBR = #{register}
+			AND
+			(hrt.FLG_CANCEL IS NULL OR hrt.FLG_CANCEL = 'N')
+			AND
+			(hrt.FLG_SLE_DELETE IS NULL OR hrt.FLG_SLE_DELETE = 'N')
+			)
+		<![CDATA[
+			WHERE
+				rnum >= (${currentPage} - 1) * ${linePerPage} + 1 
+				AND rnum <= ${currentPage} * ${linePerPage}
+		]]>
+	ORDER BY
+		rnum
+</select>
+
+</mapper>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.member.Member">
+
+	<update id="changePasswd" parameterType="memberDto">
+		UPDATE TB_MBR
+		SET
+			PASSWD = #{passwd}
+		WHERE
+			MBR_NM = #{mbr_nm}
+			AND PHONE = #{phone}
+			AND EMAIL = #{email}
+			AND CD_STATE = 1
+	</update>
+	
+	<select id="findPasswd" parameterType="memberDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PASSWD)
+		FROM
+			TB_MBR
+		WHERE
+			MBR_NM = #{mbr_nm}
+			AND PHONE = #{phone}
+			AND EMAIL = #{email}
+			AND CD_STATE = 1
+	</select>
+	
+	<select id="findId" parameterType="memberDto" resultType="memberDto">
+		SELECT
+			EMAIL
+		FROM
+			TB_MBR
+		WHERE
+			MBR_NM = #{mbr_nm}
+			AND PHONE = #{phone}
+			AND CD_STATE = 1
+	</select>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_MBR.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="selectPhone" parameterType="memberDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PHONE)
+		FROM
+			TB_MBR
+		WHERE
+			PHONE = #{phone}
+	</select>
+
+	<select id="selectDuplicate" parameterType="memberDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(EMAIL)
+		FROM
+			TB_MBR
+		WHERE
+			EMAIL = #{email}
+			AND CD_STATE = 1
+	</select>
+	
+	<insert id="insert" parameterType="memberDto">
+		INSERT INTO TB_MBR
+			(SEQ_MBR, EMAIL, PASSWD, CD_STATE, MBR_NM, GENDER, PHONE,POST, ADDR1, ADDR2, FLG_SMS, DT_SMS, FLG_EMAIL, DT_EMAIL, DT_REG, REGISTER)
+		VALUES
+			(#{seq_mbr}, #{email}, #{passwd}, 0, #{mbr_nm}, #{gender}, #{phone}, #{post}, #{addr1}, #{addr2}, #{flg_sms}, SYSDATE, #{flg_email}, SYSDATE, SYSDATE, #{register})
+	</insert>
+	
+	<update id="update" parameterType="memberDto">
+		UPDATE
+			TB_MBR
+		SET
+			DT_UPT	= SYSDATE
+			<if test="phone != null and phone != ''">
+			, PHONE	= #{phone}
+			</if>
+			, UPDATER = #{updater}
+			<if test="post != null and post != ''">
+			, POST		= #{post}
+			</if>
+			<if test="addr1 != null and addr1 != ''">
+			, ADDR1		= #{addr1}
+			</if>
+			<if test="addr2 != null and addr2 != ''">
+			, ADDR2		= #{addr2}
+			</if>
+			<if test="flg_sms != null and flg_sms != ''">
+			, FLG_SMS	= #{flg_sms}
+			, DT_SMS	= SYSDATE
+			</if>
+			<if test="flg_email != null and flg_email != ''">
+			, FLG_EMAIL	= #{flg_email}
+			, DT_EMAIL	= SYSDATE
+			</if>
+		WHERE
+			SEQ_MBR	= #{seq_mbr}
+	</update>
+	
+	<update id="updateState" parameterType="memberDto">
+		UPDATE
+			TB_MBR
+		SET
+			CD_STATE = 1
+		WHERE
+			CD_STATE	= 0
+			AND EMAIL	= #{email}
+			<![CDATA[
+			AND DT_REG >= SYSDATE - INTERVAL '10' MINUTE
+			]]> 
+	</update>
+		
+	<update id="deleteState" parameterType="memberDto">
+		UPDATE
+			TB_MBR
+		SET
+			CD_STATE = 8
+		WHERE
+			CD_STATE = 1
+			AND SEQ_MBR = #{seq_mbr}
+	</update>
+		
+	<select id="select" parameterType="memberDto" resultType="memberDto">
+		SELECT
+			SEQ_MBR, EMAIL, PASSWD, CD_STATE, MBR_NM, GENDER, PHONE, POST, ADDR1, ADDR2, FLG_SMS, DT_SMS, FLG_EMAIL, DT_EMAIL, DT_REG, REGISTER
+		FROM
+			TB_MBR
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+	</select>
+	
+	<select id="selectPasswd" parameterType="memberDto" resultType="memberDto">
+		SELECT
+			PASSWD
+		FROM
+			TB_MBR
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+	</select>
+	
+	<update id="updatePasswd" parameterType="memberDto">
+		UPDATE
+			TB_MBR
+		SET
+			PASSWD		= #{passwd}
+			, UPDATER	= #{updater}
+			, DT_UPT	= SYSDATE
+		WHERE
+			SEQ_MBR		= #{seq_mbr}
+	</update>
+
+</mapper>

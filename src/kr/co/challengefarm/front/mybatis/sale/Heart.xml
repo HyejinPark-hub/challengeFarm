@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.sale.Heart">
+	
+	<update id="update" parameterType="heartDto">
+		UPDATE
+			<if test="seq_sle != '' and seq_sle != null and seq_sle != 0">
+				TB_SLE
+			</if>
+			<if test="seq_act != '' and seq_act != null and seq_act != 0">
+				TB_ACT
+			</if>
+		SET
+			<if test="process == 'insert'">
+				HEART = HEART + 1
+			</if>
+			<if test="process == 'delete'">
+				HEART = HEART - 1
+			</if>
+		WHERE
+			<if test="seq_sle != '' and seq_sle != null and seq_sle != 0">
+				SEQ_SLE = #{seq_sle}
+			</if>
+			<if test="seq_act != '' and seq_act != null and seq_act != 0">
+				SEQ_ACT		= #{seq_act}
+			</if>
+	</update>
+	
+	<update id="delete" parameterType="heartDto">
+		UPDATE
+			TB_HRT
+		SET
+			FLG_CANCEL	= 'Y'
+			, DT_UPT	= SYSDATE
+			, UPDATER	= #{updater}
+		WHERE
+			<if test="seq_sle != '' and seq_sle != null and seq_sle != 0">
+				SEQ_SLE		= #{seq_sle}
+			</if>
+			<if test="seq_act != '' and seq_act != null and seq_act != 0">
+				SEQ_ACT		= #{seq_act}
+			</if>
+			AND SEQ_MBR		= #{seq_mbr}
+			AND FLG_CANCEL	= 'N'
+	</update>
+	
+	<insert id="insert" parameterType="heartDto">
+		INSERT INTO TB_HRT
+			(SEQ_HRT, SEQ_MBR, SEQ_SLE, SEQ_ACT, FLG_CANCEL, FLG_SLE_DELETE, DT_REG, REGISTER, DT_UPT, UPDATER)
+		VALUES
+			<if test="seq_sle != '' and seq_sle != null and seq_sle != 0">
+			(#{seq_hrt}, #{seq_mbr}, #{seq_sle}, NULL, 'N', NULL, SYSDATE, #{register}, NULL, NULL)
+			</if>
+			<if test="seq_act != '' and seq_act != null and seq_act != 0">
+			(#{seq_hrt}, #{seq_mbr}, NULL, #{seq_act}, 'N', NULL, SYSDATE, #{register}, NULL, NULL)
+			</if>
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_HRT.NEXTVAL FROM DUAL
+	</select>
+	
+</mapper>

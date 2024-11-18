@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="kr.co.challengefarm.front.common.dto.PagingDto"			alias="pagingDto" />
+		<typeAlias type="kr.co.challengefarm.front.auction.dto.AuctionDto"			alias="auctionDto" />
+		<typeAlias type="kr.co.challengefarm.front.auction.dto.AuctionDtlImgDto"	alias="auctionDtlImgDto" />
+		<typeAlias type="kr.co.challengefarm.front.auction.dto.BidDto"				alias="bidDto" />
+		<typeAlias type="kr.co.challengefarm.front.auction.dto.ChatDto"				alias="chatDto" />
+		<typeAlias type="kr.co.challengefarm.front.basket.dto.BasketDto"			alias="basketDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyDetailDto"			alias="buyDetailDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyDetailListDto"		alias="buyDetailListDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyDto"					alias="buyDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyImgDto"				alias="buyImgDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.BuyMasterDto"			alias="buyMasterDto" />
+		<typeAlias type="kr.co.challengefarm.front.center.dto.BoardDto"				alias="boardDto" />
+		<typeAlias type="kr.co.challengefarm.front.center.dto.BoardFileDto"			alias="boardFileDto" />
+		<typeAlias type="kr.co.challengefarm.front.buy.dto.DeliveryDto"				alias="deliveryDto" />
+		<typeAlias type="kr.co.challengefarm.front.login.dto.LoginDto"				alias="loginDto" />
+		<typeAlias type="kr.co.challengefarm.front.main.dto.MainSaleDto"			alias="mainSaleDto" />
+		<typeAlias type="kr.co.challengefarm.front.main.dto.VisitorDto"				alias="visitorDto" />
+		<typeAlias type="kr.co.challengefarm.front.member.dto.MemberDto"			alias="memberDto" />
+		<typeAlias type="kr.co.challengefarm.front.member.dto.StatisticMemberDto"	alias="statisticMemberDto" />
+		<typeAlias type="kr.co.challengefarm.front.member.dto.TermAgreeDto"			alias="termAgreeDto" />
+		<typeAlias type="kr.co.challengefarm.front.mypage.dto.BuyListDto"			alias="buyListDto" />
+		<typeAlias type="kr.co.challengefarm.front.mypage.dto.MyInfoDto"			alias="myInfoDto" />
+		<typeAlias type="kr.co.challengefarm.front.mypage.dto.ReviewDto"			alias="reviewDto" />
+		<typeAlias type="kr.co.challengefarm.front.mypage.dto.QuestionListDto"		alias="QuestionListDto" />
+		<typeAlias type="kr.co.challengefarm.front.mypage.dto.HeartListDto"			alias="heartListDto" />
+		<typeAlias type="kr.co.challengefarm.front.pay.dto.PayDto"					alias="payDto" />
+		<typeAlias type="kr.co.challengefarm.front.sale.dto.HeartDto"				alias="heartDto" />
+		<typeAlias type="kr.co.challengefarm.front.sale.dto.SaleDto"				alias="saleDto" />
+	</typeAliases>
+	<mappers>
+		<mapper resource="kr/co/challengefarm/front/mybatis/auction/Auction.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/basket/Basket.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/buy/Buy.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/buy/BuyDetail.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/buy/BuyMaster.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/buy/Delivery.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/center/Board.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/login/Login.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/main/MainSale.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/main/Visitor.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/member/Member.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/member/StatisticMember.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/member/TermAgree.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/Auction.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/MyInfo.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/BuyList.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/QuestionList.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/Review.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/mypage/HeartList.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/pay/Pay.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/sale/Heart.xml" />
+		<mapper resource="kr/co/challengefarm/front/mybatis/sale/Sale.xml" />
+	</mappers>
+</configuration>

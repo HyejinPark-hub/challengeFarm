@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="kr.co.challengefarm.seller.center.dto.BoardDto"		alias="boardDto" />
+		<typeAlias type="kr.co.challengefarm.seller.center.dto.BoardFileDto"	alias="boardFileDto" />
+		<typeAlias type="kr.co.challengefarm.seller.common.dto.PagingDto"		alias="pagingDto" />
+		<typeAlias type="kr.co.challengefarm.seller.login.dto.LoginDto"			alias="loginDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sale.dto.SaleDto"			alias="saleDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sale.dto.SaleDtlImgDto"		alias="saleDtlImgDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sales.dto.BuyMasterDto"	alias="buyMasterDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sales.dto.BuyDetailDto"	alias="buyDetailDto" />
+		<typeAlias type="kr.co.challengefarm.seller.sellers.dto.SellerDto"		alias="sellerDto" />
+		<typeAlias type="kr.co.challengefarm.seller.mypage.dto.MyInfoDto"		alias="myInfoDto" />
+	</typeAliases>
+	<mappers>
+		<mapper resource="kr/co/challengefarm/seller/mybatis/center/Board.xml" />
+		<mapper resource="kr/co/challengefarm/seller/mybatis/login/Login.xml" />
+		<mapper resource="kr/co/challengefarm/seller/mybatis/sale/Sale.xml" />
+		<mapper resource="kr/co/challengefarm/seller/mybatis/sales/Sales.xml" />
+		<mapper resource="kr/co/challengefarm/seller/mybatis/sellers/Seller.xml" />
+		<mapper resource="kr/co/challengefarm/seller/mybatis/mypage/MyInfo.xml" />
+	</mappers>
+</configuration>

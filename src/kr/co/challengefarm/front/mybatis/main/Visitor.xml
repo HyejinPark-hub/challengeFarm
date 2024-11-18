@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.main.Visitor">
+	
+	<update id="update" parameterType="visitorDto">
+		UPDATE
+			TB_VST
+		SET
+			VISITOR = VISITOR + 1
+		WHERE
+			YEAR = #{year}
+			AND MONTH = #{month}
+	</update>
+	
+	<insert id="insert" parameterType="visitorDto">
+		INSERT INTO TB_VST
+			(SEQ_VST, YEAR, MONTH, VISITOR)
+		VALUES
+			(#{seq_vst}, #{year}, #{month}, 1)
+		
+	</insert>
+
+	<select id="select" parameterType="visitorDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_VST)
+		FROM
+			TB_VST
+		WHERE
+			YEAR = #{year}
+			AND MONTH = #{month}
+	</select>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_VST.NEXTVAL FROM DUAL
+	</select>
+	
+</mapper>

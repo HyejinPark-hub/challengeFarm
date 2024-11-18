@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.sale.Sale">
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM
+			TB_SLE
+		WHERE
+			<include refid="where" />
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="saleDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (<include refid="orderBy"/>) rnum
+				, TB_SLE.SEQ_SLE
+				, TB_SLE.SLE_NM
+				, TB_SLE.CD_CTG
+				,(SELECT COALESCE(FLOOR(SUM(TB_REV.RATING) / NULLIF(COUNT(TB_REV.RATING), 0)), 0)
+					FROM TB_REV
+				 WHERE TB_SLE.SEQ_SLE = TB_REV.SEQ_SLE) rating
+				, TB_SLE.PRICE_COST
+				, TB_SLE.DISCOUNT
+				, TB_SLE.IMG
+				, TB_SLE.HEART
+				, TB_SLE.REVIEW
+				, TB_SLE.SIZE_NM
+				, TB_SLE.DT_REG
+				, TB_HRT.FLG_CANCEL
+			FROM
+				TB_SLE
+				LEFT JOIN TB_HRT
+				ON
+					TB_HRT.SEQ_SLE			= TB_SLE.SEQ_SLE
+					AND TB_HRT.SEQ_MBR		= #{seq_mbr}
+					AND TB_HRT.FLG_CANCEL	= 'N'
+			WHERE
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+			
+	</select>
+	
+	<sql id="orderBy">
+		<choose>
+			<when test="sale_sort == 'popular'">
+				ORDER BY TB_SLE.HEART DESC
+			</when>
+			<when test="sale_sort == 'low_price'">
+				ORDER BY TB_SLE.PRICE_COST ASC
+			</when>
+			<when test="sale_sort == 'high_price'">
+				ORDER BY TB_SLE.PRICE_COST DESC
+			</when>
+			<when test="sale_sort == 'discount'">
+				ORDER BY TB_SLE.DISCOUNT DESC
+			</when>
+			<when test="sale_sort == 'review'">
+				ORDER BY TB_SLE.REVIEW DESC
+			</when>
+			<otherwise>
+				ORDER BY TB_SLE.DT_REG DESC
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="where">
+			TB_SLE.CD_STATE_SALE != '0'
+			<choose>
+				<when test="cd_ctg == 1">
+					AND TB_SLE.CD_CTG IN ('11', '12', '13', '14', '15', '16')
+				</when>
+				<when test="cd_ctg == 2">
+					AND TB_SLE.CD_CTG IN ('21', '22', '23', '24', '25', '26')
+				</when>
+				<when test="cd_ctg != ''">
+					AND TB_SLE.CD_CTG = #{cd_ctg}
+				</when>
+				<otherwise>
+					
+				</otherwise>
+			</choose>
+			<if test="brd_ctg != null and brd_ctg != ''">
+				AND TB_SLE.REGISTER = #{brd_ctg}
+			</if>
+			<choose>
+				<when test="prc_ctg == 1">
+					AND TB_SLE.PRICE_COST BETWEEN 0 AND 25000
+				</when>
+				<when test="prc_ctg == 2">
+					AND TB_SLE.PRICE_COST BETWEEN 25000 AND 50000
+				</when>
+				<when test="prc_ctg == 3">
+					AND TB_SLE.PRICE_COST BETWEEN 50000 AND 100000
+				</when>
+				<when test="prc_ctg == 4">
+					AND TB_SLE.PRICE_COST BETWEEN 100000 AND 150000
+				</when>
+				<when test="prc_ctg == 5">
+					AND TB_SLE.PRICE_COST BETWEEN 150000 AND 300000
+				</when>
+				<when test="prc_ctg == 6">
+					AND TB_SLE.PRICE_COST > 300000
+				</when>
+				<otherwise>
+				
+				</otherwise>
+			</choose>
+			<if test="size_nm != null and size_nm != ''">
+				AND TB_SLE.SIZE_NM LIKE '%' || #{size_nm} || '%' AND TB_SLE.SIZE_NM != 'NULL'
+			</if>
+			<if test="searchWord != null and searchWord != ''">
+				AND TB_SLE.SLE_NM LIKE '%' || #{searchWord} || '%'
+			</if>
+	</sql>
+</mapper>

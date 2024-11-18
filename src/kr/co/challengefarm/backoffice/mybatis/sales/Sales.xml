@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.backoffice.mybatis.sales.Sales">
+	
+	<select id="detailList" parameterType="salesDto" resultType="salesDto">
+		SELECT
+			dtl.COUNT
+			, sle.IMG
+			, sle.SLE_NM
+			, sle.PRICE_COST
+			, dtl.PRICE
+			, sle.SIZE_NM
+			, dtl.SIZE_NM size_num
+			, sle.REGISTER
+			, (select sll_nm from tb_sll sll where sle.register = sll.seq_sll) sll_nm
+		FROM
+			TB_BUY_DTL dtl
+			LEFT JOIN TB_SLE sle
+			ON
+				dtl.SEQ_SLE = sle.SEQ_SLE
+		WHERE
+			dtl.SEQ_BUY_MST = #{seq_buy_mst}
+		ORDER BY
+			dtl.DT_REG desc
+			, SLL_NM
+	</select>
+	
+	<select id="select" parameterType="salesDto" resultType="salesDto">
+		SELECT
+			sll.SLL_NM
+			, COALESCE(COUNT(DTL.COUNT), 0) AS totalCnt
+			, COALESCE(SUM(DTL.PRICE), 0) AS totalPrice
+		FROM
+			(
+				SELECT '꼼데가르송' AS SLL_NM FROM dual
+				UNION ALL
+				SELECT '라코스테' FROM DUAL
+				UNION ALL
+				SELECT '리바이스' FROM DUAL
+				UNION ALL
+				SELECT '빈폴' FROM DUAL
+			) sll
+		LEFT JOIN TB_SLL sll_db
+			ON
+				sll.SLL_NM = sll_db.SLL_NM
+		LEFT JOIN TB_SLE sle
+			ON
+				sle.REGISTER = sll_db.SEQ_SLL
+		LEFT JOIN TB_BUY_DTL dtl
+			ON
+				sle.SEQ_SLE = dtl.SEQ_SLE
+		LEFT JOIN TB_BUY_MST mst
+			ON
+				dtl.SEQ_BUY_MST = mst.SEQ_BUY_MST
+				AND mst.CD_STATE_PAY = 'Y'
+		GROUP BY
+			sll.SLL_NM
+		ORDER BY
+			sll.SLL_NM
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="salesDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY DT_REG DESC) rnum
+				, SEQ_BUY_MST
+				, BUY_INFO
+				, BUY_COUNT
+				, BUY_PRICE
+				, TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+				, (SELECT MBR_NM FROM TB_MBR WHERE TB_BUY_MST.SEQ_MBR = TB_MBR.SEQ_MBR) mbr_nm
+			FROM
+				TB_BUY_MST
+			WHERE
+				CD_STATE_PAY = 'Y'
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_BUY_MST)
+		FROM
+			TB_BUY_MST
+		WHERE
+			CD_STATE_PAY = 'Y'
+	</select>
+	
+</mapper>

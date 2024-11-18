@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.auction.Auction">
+	
+	<select id="list" parameterType="chatDto" resultType="chatDto">
+		SELECT
+			CONTENT
+			, REGISTER
+			, DT_REG
+		FROM
+			TB_ACT_CHT
+		WHERE
+			SEQ_ACT = #{seq_act}
+			<if test="dt_reg != '' and dt_reg != null">
+				AND DT_REG > TO_DATE(SUBSTR(#{dt_reg}, 0, 19), 'YYYY-MM-DD HH24:MI:SS')
+			</if>
+		ORDER BY
+			DT_REG
+	</select>
+	
+	<insert id="insertChat" parameterType="chatDto">
+		INSERT INTO TB_ACT_CHT
+			(SEQ_ACT_CHT, SEQ_ACT, CONTENT, DT_REG, REGISTER)
+		VALUES
+			(#{seq_act_cht}, #{seq_act}, #{content}, SYSDATE, #{register})
+	</insert>
+	
+	<select id="chatSequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_ACT_CHT.NEXTVAL FROM DUAL
+	</select>
+	
+	<update id="giveUp" parameterType="bidDto">
+		UPDATE
+			TB_BID
+		SET
+			FLG_GIVEUP	= 'Y'
+			, DT_UPT	= SYSDATE
+			, UPDATER	= #{updater}
+		WHERE
+			SEQ_ACT		= #{seq_act}
+			AND SEQ_MBR	= #{seq_mbr}
+	</update>
+	
+	<update id="update" parameterType="bidDto">
+		UPDATE
+			TB_BID
+		SET
+			BID_PRICE		= #{bid_price}
+			<if test="flg_giveup != '' and flg_giveup != null">
+			, FLG_GIVEUP	= #{flg_giveup}
+			</if>
+			, DT_UPT		= SYSDATE
+			, UPDATER		= #{updater}
+		WHERE
+			SEQ_ACT			= #{seq_act}
+			AND SEQ_MBR		= #{seq_mbr}
+	</update>
+	
+	<insert id="insert" parameterType="bidDto">
+		INSERT INTO TB_BID
+			(SEQ_BID, SEQ_ACT, SEQ_MBR, BID_PRICE, FLG_SUCCESS, FLG_GIVEUP, DT_REG, REGISTER, DT_UPT, UPDATER)
+		VALUES
+			(#{seq_bid}, #{seq_act}, #{seq_mbr}, #{bid_price}, NULL, NULL, SYSDATE, #{register}, NULL, NULL)
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_BID.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="selectImgs" parameterType="auctionDto" resultType="auctionDtlImgDto">
+		SELECT
+			IMG
+		FROM
+			TB_ACT_IMG
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</select>
+	
+	<select id="select" parameterType="auctionDto" resultType="auctionDto">
+		SELECT
+			TB_ACT.SEQ_ACT
+			, TB_ACT.ACT_NM
+			, TB_ACT.PRICE
+			, TB_ACT.DESCES
+			, TB_ACT.IMG
+			, TB_ACT.HEART
+			, TB_ACT.BUY_YEAR
+			, TB_ACT.ACT_STATE
+			, TB_ACT.DT_ACT_START
+			, TB_ACT.DT_ACT_END
+			, TB_ACT.REGISTER
+			, TB_BID.BID_PRICE
+			, TB_BID.FLG_GIVEUP
+			, TB_HRT.FLG_CANCEL
+		FROM
+			TB_ACT
+			LEFT JOIN TB_BID
+			ON
+				TB_ACT.SEQ_ACT = TB_BID.SEQ_ACT
+				AND TB_BID.SEQ_MBR = #{seq_mbr}
+			LEFT JOIN TB_HRT
+			ON
+				TB_ACT.SEQ_ACT = TB_HRT.SEQ_ACT
+				AND TB_HRT.FLG_CANCEL = 'N'
+		WHERE
+			TB_ACT.SEQ_ACT = #{seq_act}
+			AND TB_ACT.SUCCESS IS NULL
+			AND TB_ACT.CD_STATE_ACT = 1
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM
+			TB_ACT act
+		WHERE
+			<include refid="where" />
+	</select>
+	
+	<select id="actionList" parameterType="pagingDto" resultType="auctionDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (<include refid="orderBy"/>) rnum
+				, act.SEQ_ACT
+				, act.ACT_NM
+				, act.PRICE
+				, act.IMG
+				, act.BUY_YEAR
+				, act.ACT_STATE
+				, act.DT_ACT_START
+				, act.DT_ACT_END
+				, TRUNC(act.DT_ACT_END - SYSDATE) day_remain
+				, act.HEART
+				, act.CD_STATE_ACT
+				, act.DT_REG
+				, act.REGISTER
+				, (SELECT mbr.MBR_NM FROM TB_MBR mbr WHERE mbr.SEQ_MBR = act.REGISTER) seller
+				, hrt.FLG_CANCEL
+				, (SELECT COUNT(*) FROM TB_BID bid WHERE bid.SEQ_ACT = act.SEQ_ACT AND (bid.FLG_GIVEUP IS NULL OR bid.FLG_GIVEUP = 'N')) bid_cnt
+			FROM
+				TB_ACT act
+			LEFT JOIN TB_HRT hrt
+			ON
+				hrt.SEQ_ACT			= act.SEQ_ACT
+				AND hrt.FLG_CANCEL	= 'N'
+			WHERE
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+			
+	</select>
+	
+	<sql id="orderBy">
+		<choose>
+			<when test="sale_sort == 'popular'">
+				ORDER BY (SELECT COUNT(*) 
+							FROM TB_BID bid 
+							WHERE bid.SEQ_ACT = act.SEQ_ACT 
+							AND (bid.FLG_GIVEUP IS NULL OR bid.FLG_GIVEUP = 'N')) DESC,
+						act.HEART DESC
+			</when>
+			<when test="sale_sort == 'closing'">
+				ORDER BY act.DT_ACT_END ASC
+			</when>
+			<when test="sale_sort == 'new'">
+				ORDER BY act.DT_ACT_START ASC
+			</when>
+			<when test="sale_sort == 'low_price'">
+				ORDER BY act.PRICE ASC
+			</when>
+			<when test="sale_sort == 'high_price'">
+				ORDER BY act.PRICE DESC
+			</when>
+			<otherwise>
+				ORDER BY act.DT_REG DESC
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="where">
+			act.CD_STATE_ACT = 1
+		AND	
+			TRUNC(act.DT_ACT_END - SYSDATE) >= 0
+			<choose>
+				<when test="prc_ctg == 1">
+					AND act.PRICE BETWEEN 0 AND 50000
+				</when>
+				<when test="prc_ctg == 2">
+					AND act.PRICE BETWEEN 50000 AND 150000
+				</when>
+				<when test="prc_ctg == 3">
+					AND act.PRICE BETWEEN 150000 AND 300000
+				</when>
+				<when test="prc_ctg == 4">
+					AND act.PRICE BETWEEN 300000 AND 500000
+				</when>
+				<when test="prc_ctg == 5">
+					AND act.PRICE BETWEEN 500000 AND 800000
+				</when>
+				<when test="prc_ctg == 6">
+					AND act.PRICE > 800000
+				</when>
+				<otherwise>
+				
+				</otherwise>
+			</choose>
+			<choose>
+				<when test="buy_ctg == 2024">
+					AND act.BUY_YEAR = '2024'
+				</when>
+				<when test="buy_ctg == 2023">
+					AND act.BUY_YEAR = '2023'
+				</when>
+				<when test="buy_ctg == 2022">
+					AND act.BUY_YEAR = '2022'
+				</when>
+				<when test="buy_ctg == 2021">
+					AND act.BUY_YEAR = '2021'
+				</when>
+				<when test="buy_ctg == 2020">
+					AND act.BUY_YEAR = '2020'
+				</when>
+				<when test="buy_ctg == 2019">
+				<![CDATA[	
+					AND act.BUY_YEAR <= '2019'
+				]]> 
+				</when>
+				<otherwise>
+				
+				</otherwise>
+			</choose>
+			<choose>
+				<when test="state_ctg == 1">
+					AND act.ACT_STATE = '1'
+				</when>
+				<when test="state_ctg == 2">
+					AND act.ACT_STATE = '2'
+				</when>
+				<when test="state_ctg == 3">
+					AND act.ACT_STATE = '3'
+				</when>
+				<when test="state_ctg == 4">
+					AND act.ACT_STATE = '4'
+				</when>
+				<when test="state_ctg == 5">
+					AND act.ACT_STATE = '5'
+				</when>
+				<otherwise>
+				
+				</otherwise>
+			</choose>
+			
+			<choose>
+				<when test='scs_ctg == "Y"'>
+					AND act.SUCCESS = 'Y'
+				</when>
+				<when test='scs_ctg == "N"'>
+					AND act.SUCCESS = 'N'
+				</when>
+				<when test='scs_ctg == ""'>
+					AND act.SUCCESS IS NULL
+				</when>
+				<otherwise>
+				
+				</otherwise>
+			</choose>
+			
+			<if test="searchWord != null and searchWord != ''">
+				AND act.ACT_NM LIKE '%' || #{searchWord} || '%'
+			</if>
+	</sql>
+	
+</mapper>

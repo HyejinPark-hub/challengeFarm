@@ -1,0 +1,81 @@
+:root {
+	--gray-light: #E2E2E2;
+}
+
+/*******************
+판매자 - 상품 등록
+********************/
+
+
+body, div, article, form, p, input, span {box-sizing:border-box;}
+
+input[type=text] {border:none;border-bottom:1px solid var(--gray);}
+
+.saleWrite {margin: 50px auto;}
+.saleWrite h3 {text-align:center;}
+
+.write {position:relative;margin-top:30px;padding:20px;border:2px solid var(--gray-light);border-radius:20px;}
+.write::after {content:"";position:absolute;top:0;left:150px;width:2px;height:100%;background:var(--gray-light);}
+.write > div {position:relative;display:flex;margin-bottom:40px;}
+.write > div:not(:last-child)::after {position:absolute;content:"";width:calc(100% + 40px);height:2px;background:var(--gray-light);left:-20px;bottom:-20px;}
+.write > div:last-child {margin-bottom:0;}
+.write > div > p {font-weight:bold;}
+.write > div > p:first-child {width:150px;margin-bottom:0;}
+
+
+.cd_ctg .sub {margin-top:10px;}
+.cd_ctg span {display:inline-block;margin-right:5px;padding:5px 10px;border:1px solid var(--gray-light);border-radius:10px;color:var(--gray-light);cursor:pointer;}
+.cd_ctg span.active {border-color:black;color:black;}
+
+.sle_nm input, .price input {width:350px;}
+.buy_year input {width:60px;}
+
+.price_cost input[name=price_cost] {margin-right:10px;}
+.price_cost input[name=discount] {width:50px;}
+
+.desces textarea {width:550px;height:200px;overflow-y:scroll;resize:none;
+	/* firefox - scrollbar style */
+	scrollbar-width: 3px;
+	scrollbar-color: #ccc;
+}
+/* chrome & edge & safari & opera - scrollbar style */
+.desces textarea::-webkit-scrollbar {width:3px;}
+.desces textarea::-webkit-scrollbar-thumb {background-color:#ccc;border-radius:5px;}
+
+.mainImg img, .dtlImg img {max-height:150px;margin-top:10px;margin-right:5px;}
+.infoImg img {max-width:450px;margin-top:10px;}
+.dtlImg > div {max-width:calc(100% - 190px);}
+.dtlImg #previewDtl img {display:none;}
+p.explain {margin:10px 0 0;color:var(--gray);font-size:12px;line-height:12px;}
+p.pButton {cursor:pointer;}
+#viewList p, #viewDtl p, #viewInfo p {margin:0;font-size:14px;font-weight:bold;}
+.modifyImg {margin-top:5px;color:var(--blue);cursor:pointer;}
+
+.size table {margin-bottom:15px;}
+.size table .plusDtl {font-size:14px;}
+.size table th {margin-right:5px;}
+.size td input {width:50px;margin-right:10px;}
+.size p {margin:0;}
+input::placeholder {color:var(--gray-light);}
+.size td input.eachCount {width:80px}
+
+#btnArea {margin-bottom:100px;text-align:center;}
+#btnArea input, #btnArea a {display:inline-block;width:200px;height:50px;margin:30px auto 0;line-height:50px;border-radius:10px;}
+#btnArea input {background:#007bff;color:white;border:none;}
+#btnArea a {background:white;color:var(--gray);border:1px solid var(--gray);}
+
+
+
+@media all and (max-width:479px) {
+	.write::after {position:unset;}
+	.write > div {display:block;}
+	.desces textarea {width:100%;}
+	.size th input[type=text] {width:85px;}
+	#btnArea a {margin-top:10px;}
+	.sle_nm input {width:100%;}
+	.price_cost input[name=discount] {width:65px;}
+	.size td input.eachCount {width:45px;}
+	
+	#btnArea input {width:100%;}
+	#btnArea input:not(:first-child) {margin-top:10px;}
+}

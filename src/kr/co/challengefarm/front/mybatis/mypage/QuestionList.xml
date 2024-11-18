@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.QuestionList">
+	
+	<update id="deleteFlag" parameterType="boardDto">
+		UPDATE
+			TB_BBS
+		SET
+			FLG_DELETE	= 'Y'
+			, DT_UPT	= SYSDATE
+			, UPDATER	= #{updater}
+		WHERE
+			CD_BBS_TYPE = 3
+			AND SEQ_BBS = #{seq_bbs}
+	</update>
+	
+	<update id="update" parameterType="boardDto">
+		UPDATE
+			TB_BBS
+		SET
+			TITLE		= #{title}
+			, CD_CTG	= #{cd_ctg}
+			, CONTENT	= #{content}
+			, FILE_SAVE	= #{file_save}
+			, FILE_ORIG	= #{file_orig}
+			, DT_UPT	= SYSDATE
+			, UPDATER	= #{updater}
+		WHERE
+			SEQ_BBS = #{seq_bbs}
+	</update>
+	
+	<select id="select" parameterType="boardDto" resultType="boardDto">
+		SELECT
+			SEQ_BBS
+			, TITLE
+			, (SELECT tb_reply.SEQ_BBS FROM TB_BBS tb_reply WHERE tb_reply.SEQ_BBS_PARENT = TB_BBS.SEQ_BBS) seq_reply
+			, CD_CTG
+			, CONTENT
+			, FILE_SAVE
+			, FILE_ORIG
+			, READED
+			, TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+		FROM
+			TB_BBS
+		WHERE
+			CD_BBS_TYPE		= 3
+			AND SEQ_BBS		= #{seq_bbs}
+	</select>
+	
+	<select id="selectFile" parameterType="boardFileDto" resultType="boardFileDto">
+		SELECT
+			SEQ_BBS
+			,FILE_SAVE
+			,FILE_ORIG
+		 FROM TB_BBS 
+		 WHERE
+		 SEQ_BBS = #{seq_bbs}
+	</select>
+	
+	<select id="selectReply" parameterType="boardDto" resultType="boardDto">
+		SELECT
+			SEQ_BBS
+			, TITLE
+			, CONTENT
+			, FILE_SAVE
+			, FILE_ORIG
+			, TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+		FROM
+			TB_BBS
+		WHERE
+			CD_BBS_TYPE			= 3
+			AND SEQ_BBS_PARENT	= #{seq_bbs}
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM
+			TB_BBS
+		WHERE
+			FLG_DELETE IS NULL
+		AND CD_BBS_TYPE	= 3
+		AND REGISTER 	= #{register}
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="QuestionListDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY DT_REG DESC) rnum
+				,SEQ_BBS
+				,CD_CTG
+				,TITLE
+				,(SELECT tb_reply.SEQ_BBS FROM TB_BBS tb_reply WHERE tb_reply.SEQ_BBS_PARENT = TB_BBS.SEQ_BBS) flg_reply
+				,TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+			FROM
+				TB_BBS
+			WHERE
+				FLG_DELETE IS NULL
+			AND CD_BBS_TYPE	= 3
+			AND REGISTER 	= #{register}
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.BuyList">
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(ROWNUM)
+		FROM 
+			TB_BUY_MST mst
+		JOIN 
+			TB_BUY_DTL dtl 
+		ON 
+			mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+		AND 
+			dtl.SEQ_BUY_DTL = (
+								SELECT MIN(dtl_inner.SEQ_BUY_DTL)
+								FROM TB_BUY_DTL dtl_inner
+								WHERE dtl_inner.SEQ_BUY_MST = mst.SEQ_BUY_MST
+							 )
+		JOIN 
+			TB_SLE sle
+		ON 
+			dtl.SEQ_SLE		= sle.SEQ_SLE
+		WHERE 
+			mst.FLG_DELETE 	= 'N'
+		AND
+			mst.REGISTER 	= #{register}
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="buyListDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY mst.DT_REG DESC) rnum
+				,mst.SEQ_BUY_MST
+				,mst.BUY_INFO
+				,mst.BUY_PRICE
+				,TO_CHAR(mst.DT_REG, 'YYYY-MM-DD') dt_reg
+				,sle.SLE_NM
+				,sle.IMG
+			FROM 
+				TB_BUY_MST mst
+			JOIN 
+				TB_BUY_DTL dtl 
+			ON 
+				mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+			AND 
+				dtl.SEQ_BUY_DTL = (
+									SELECT MIN(dtl_inner.SEQ_BUY_DTL)
+									FROM TB_BUY_DTL dtl_inner
+									WHERE dtl_inner.SEQ_BUY_MST = mst.SEQ_BUY_MST
+								 )
+			JOIN 
+				TB_SLE sle
+			ON 
+				dtl.SEQ_SLE		= sle.SEQ_SLE
+			WHERE 
+				mst.FLG_DELETE 	= 'N'
+			AND
+				mst.REGISTER 	= #{register}
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<select id="buyDetailList" parameterType="buyListDto" resultType="buyListDto">
+		SELECT 
+			mst.SEQ_BUY_MST
+			,TO_CHAR(mst.DT_REG, 'YYYY-MM-DD') dt_reg
+			,sle.SEQ_SLE
+			,sle.SLE_NM
+			,sle.IMG
+			,sle.COLOR
+			,sle.SIZE_NM size_name
+			,dtl.SEQ_BUY_DTL
+			,dtl.SIZE_NM
+			,dtl.COUNT
+			,dtl.PRICE
+		FROM 
+			TB_BUY_MST mst
+		JOIN 
+			TB_BUY_DTL dtl 
+			ON mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+		JOIN 
+			TB_SLE sle
+			ON dtl.SEQ_SLE = sle.SEQ_SLE
+		WHERE 
+			mst.FLG_DELETE = 'N'
+		AND
+			mst.SEQ_BUY_MST	= #{seq_buy_mst}
+	</select>
+	
+</mapper>

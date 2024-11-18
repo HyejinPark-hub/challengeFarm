@@ -1,0 +1,38 @@
+/* lnbMypage */
+.menu-item.active {font-weight: bold;color: black;}
+
+
+@media (min-width: 992px) {
+	.col-lg-3.lnbMypage {max-width:17%;}
+}
+
+/* 마이페이지 메인 */
+.shop.spad .container .row.myPage {display:block;width:80%; margin:0 auto;}
+.shop.spad .container .row.myPage h4 {margin-bottom:10px;}
+.shop.spad .container .row.myPage h4 span {margin-left:5px;font-size:16px;}
+.myPageMenu {display:flex;flex-wrap:wrap;width:100%;border:1px solid black;}
+.myPageMenu li {width:25%;text-align:center;color:black;}
+.myPageMenu li:not(:last-child) {border-right:1px solid black;}
+.myPageMenu li a {display:inline-block;width:100%;padding:35px 0;color:black;}
+.myPageMenu li a:hover, .myPageSubMenu li a:hover {color:#e53637;}
+.myPageMenu li a i {display:inline-block;width:100%;}
+
+.myPageSubMenu {display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:50px;}
+.myPageSubMenu li {position:relative;width: 49%;border-bottom:1px solid black;line-height:55px;}
+.myPageSubMenu li a {display:inline-block;width:100%;color:black;}
+.myPageSubMenu li a span {margin-left:5px;}
+.myPageSubMenu li a i:last-child {content:"";position:absolute;top:calc(50% - 8px);right:10px;}
+
+@media only screen and (max-width: 991px) {
+	.myPageSubMenu li {width:100%;}
+}
+
+@media only screen and (max-width: 767px) {
+	.shop.spad .container .row.myPage {width:100%;}
+}
+
+@media only screen and (max-width: 575px) {
+	.myPageMenu li {width:50%;}
+	.myPageMenu li:nth-child(2n) {border-right:none;}
+	.myPageMenu li:nth-child(n+3) {border-top:1px solid black;}
+}

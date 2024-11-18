@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.buy.Buy">
+
+	<select id="info" resultType="memberDto">
+		SELECT
+			MBR_NM
+			, PHONE
+			, POST
+			, ADDR1
+			, ADDR2
+		FROM
+			TB_MBR
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+			AND CD_STATE = 1
+	</select>
+	
+	<select id="select" parameterType="buyDto" resultType="buyDto">
+		SELECT
+			TB_SLE.SEQ_SLE
+			, TB_SLE.SLE_NM
+			, TB_SLE.CD_CTG
+			, TB_SLE.CD_STATE_SALE
+			, TB_SLE.PRICE_COST
+			, TB_SLE.DISCOUNT
+			, TB_SLE.DESCES
+			, TB_SLE.COLOR
+			, TB_SLE.MERTERIAL
+			, TB_SLE.IMG
+			, TB_SLE.SIZE_NM
+			, TB_SLE.SIZE_DETAIL
+			, TB_SLE.HEART
+			, TB_SLE.REVIEW
+			, TB_HRT.FLG_CANCEL
+		FROM 
+			TB_SLE
+			LEFT JOIN TB_HRT
+			ON
+				TB_SLE.SEQ_SLE = TB_HRT.SEQ_SLE
+				AND TB_HRT.SEQ_MBR = #{seq_mbr}
+				AND TB_HRT.FLG_CANCEL = 'N'
+		WHERE
+			TB_SLE.SEQ_SLE = #{seq_sle}
+	</select>
+
+	<select id="selectImg" parameterType="buyImgDto" resultType="buyImgDto">
+		SELECT
+			SEQ_SLE_IMG
+			,SEQ_SLE
+			,IMG
+		 FROM 
+		 	TB_SLE_IMG 
+		 WHERE
+		 	SEQ_SLE = #{seq_sle}
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM 
+			TB_REV rev
+		JOIN 
+			TB_SLE sle ON rev.SEQ_SLE = sle.SEQ_SLE	
+		WHERE 
+			rev.SEQ_SLE = #{seq_sle}
+		AND
+			rev.FLG_DELETE		IS NULL
+		AND
+			rev.FLG_SLE_DELETE	IS NULL
+	</select>
+	
+	<select id="reviewlist" parameterType="pagingDto" resultType="reviewDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY rev.DT_REG DESC) rnum
+				,sle.COLOR
+				,sle.SIZE_NM size_name
+				,(SELECT dtl.SIZE_NM FROM TB_BUY_DTL dtl WHERE dtl.SEQ_BUY_DTL = rev.SEQ_BUY_DTL) size_nm
+				,(SELECT dtl.COUNT FROM TB_BUY_DTL dtl WHERE dtl.SEQ_BUY_DTL = rev.SEQ_BUY_DTL) count
+				,rev.SEQ_REV 
+				,rev.SEQ_SLE 
+				,rev.CONTENT
+				,rev.RATING
+				,rev.IMG 
+				,TO_CHAR(rev.DT_REG, 'YYYY-MM-DD') dt_reg
+				,(SELECT mbr.EMAIL FROM TB_MBR mbr WHERE mbr.SEQ_MBR = rev.REGISTER) email
+			FROM 
+				TB_REV rev
+			JOIN 
+				TB_SLE sle ON rev.SEQ_SLE = sle.SEQ_SLE	
+			WHERE 
+				rev.SEQ_SLE = #{seq_sle}
+			AND
+				rev.FLG_DELETE		IS NULL
+			AND
+				rev.FLG_SLE_DELETE	IS NULL
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+</mapper>

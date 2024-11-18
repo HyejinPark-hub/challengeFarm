@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.backoffice.mybatis.sale.Sale">
+	
+	<update id="update" parameterType="saleDto">
+		UPDATE TB_SLE
+		SET
+			CD_STATE_SALE = #{cd_state_sale}
+		WHERE
+			SEQ_SLE = #{seq_sle}
+	</update>
+	
+	<select id="selectImg" parameterType="saleDto" resultType="saleDtlImgDto">
+		SELECT
+			IMG
+		FROM
+			TB_SLE_IMG
+		WHERE
+			SEQ_SLE = #{seq_sle}
+	</select>
+	
+	<select id="select" parameterType="saleDto" resultType="saleDto">
+		SELECT
+			SEQ_SLE
+			, SLE_NM
+			, CD_CTG
+			, CD_STATE_SALE
+			, PRICE_COST
+			, DISCOUNT
+			, DESCES
+			, COLOR
+			, MERTERIAL
+			, COUNT_STOCK
+			, IMG
+			, SIZE_NM
+			, SIZE_DETAIL
+			, TO_CHAR(DT_SALE_START, 'YYYY-MM-DD') dt_sale_start
+			, TO_CHAR(DT_REG, 'YYYY-MM-DD') dt_reg
+			, (SELECT SLL_NM FROM TB_SLL WHERE TB_SLE.REGISTER = TB_SLL.SEQ_SLL) sll_nm
+		FROM
+			TB_SLE
+		WHERE
+			SEQ_SLE = #{seq_sle}
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="saleDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY DT_REG DESC) rnum
+				, SEQ_SLE
+				, SLE_NM
+				, PRICE_COST
+				, CD_STATE_SALE
+				, TO_CHAR(DT_SALE_START, 'YYYY-MM-DD') dt_reg
+				, (SELECT SLL_NM FROM TB_SLL WHERE TB_SLE.REGISTER = TB_SLL.SEQ_SLL) sll_nm
+			FROM
+				TB_SLE
+			WHERE
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_SLE)
+		FROM
+			TB_SLE
+		WHERE
+			<include refid="where" />
+	</select>
+	
+	<sql id="where">
+		CD_STATE_SALE = #{cd_state_sale}
+		<if test="register != '' and register != null">
+			AND TB_SLE.REGISTER = #{register}
+		</if>
+	</sql>
+</mapper>

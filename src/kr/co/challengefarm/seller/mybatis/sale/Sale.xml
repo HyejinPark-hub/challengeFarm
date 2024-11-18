@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.seller.mybatis.sale.Sale">
+	
+	<delete id="deleteInfoImg" parameterType="saleDtlImgDto">
+		DELETE FROM TB_SLE_IMG
+		WHERE
+			SEQ_SLE = #{seq_sle}
+			AND FLG_INFO = 'Y'
+	</delete>
+	
+	<delete id="deleteDtlImg" parameterType="saleDtlImgDto">
+		DELETE FROM TB_SLE_IMG
+		WHERE
+			SEQ_SLE = #{seq_sle}
+			<![CDATA[
+			AND FLG_INFO <> 'Y'
+			]]> 
+	</delete>
+	
+	<update id="update" parameterType="saleDto">
+		UPDATE TB_SLE
+		SET
+			SLE_NM			= #{sle_nm}
+			, CD_CTG		= #{cd_ctg}
+			, PRICE_COST	= #{price_cost}
+			, DISCOUNT		= #{discount}
+			, COUNT_STOCK	= #{count_stock}
+			, DESCES		= #{desces}
+			, COLOR			= #{color}
+			, MERTERIAL		= #{merterial}
+			<if test="img != '' and img != null">
+			, IMG			= #{img}
+			</if>
+			, SIZE_NM		= #{size_nm}
+			, SIZE_DETAIL	= #{size_detail}
+			, DT_SALE_START	= #{dt_sale_start}
+			, DT_UPT		= SYSDATE
+			, UPDATER		= #{updater}
+		WHERE
+			SEQ_SLE = #{seq_sle}
+	</update>
+	
+	<select id="selectImg" resultType="saleDtlImgDto">
+		SELECT
+			IMG
+		FROM
+			TB_SLE_IMG
+		WHERE
+			SEQ_SLE = #{seq_sle}
+		ORDER BY
+			FLG_INFO DESC
+			, SEQ_SLE_IMG
+	</select>
+	
+	<select id="select" resultType="saleDto">
+		SELECT
+			SEQ_SLE
+			, SLE_NM
+			, CD_CTG
+			, PRICE_COST
+			, DISCOUNT
+			, COUNT_STOCK
+			, DESCES
+			, COLOR
+			, MERTERIAL
+			, IMG
+			, SIZE_NM
+			, SIZE_DETAIL
+			, HEART
+			, REVIEW
+			, DT_SALE_START
+		FROM
+			TB_SLE
+		WHERE
+			SEQ_SLE = #{seq_sle}
+	</select>
+	
+	<insert id="insertImg" parameterType="saleDtlImgDto">
+		INSERT INTO TB_SLE_IMG
+			(SEQ_SLE_IMG, SEQ_SLE, IMG, DT_REG, REGISTER)
+		VALUES
+			(#{seq_sle_img}, #{seq_sle}, #{img}, SYSDATE, #{register})
+	</insert>
+	
+	<insert id="insert" parameterType="saleDto">
+		INSERT INTO TB_SLE
+			(SEQ_SLE, SLE_NM, CD_CTG, CD_STATE_SALE, PRICE_COST, DISCOUNT, COUNT_STOCK, DESCES, COLOR, MERTERIAL, IMG, SIZE_NM, SIZE_DETAIL, HEART, REVIEW, DT_SALE_START, DT_REG, REGISTER)
+		VALUES
+			(#{seq_sle}, #{sle_nm}, #{cd_ctg}, 1, #{price_cost}, #{discount}, #{count_stock}, #{desces}, #{color}, #{merterial}, #{img}, #{size_nm}, #{size_detail}, 0, 0, #{dt_sale_start}, SYSDATE, #{register})
+	</insert>
+	
+	<select id="detailSequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_SLE_IMG.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_SLE.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM
+			TB_SLE
+		WHERE
+			<include refid="where" />
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="saleDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (<include refid="orderBy"/>) rnum
+				, SEQ_SLE
+				, IMG
+				, SLE_NM
+				, CD_CTG
+				, PRICE_COST
+				, DISCOUNT
+				, CD_STATE_SALE
+				, TO_CHAR(DT_SALE_START, 'YYYY-MM-DD')	dt_sale_start
+				, TO_CHAR(DT_REG, 'YYYY-MM-DD')			dt_reg
+				, TO_CHAR(DT_UPT, 'YYYY-MM-DD')			dt_upt
+			FROM
+				TB_SLE
+			WHERE
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+			
+	</select>
+	
+	<sql id="orderBy">
+		<choose>
+			<when test="sale_sort == 'heart'">
+				ORDER BY HEART DESC
+			</when>
+			<when test="sale_sort == 'review'">
+				ORDER BY REVIEW DESC
+			</when>
+			<otherwise>
+				ORDER BY DT_REG DESC
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="where">
+			REGISTER IN ('1', '4', '5')
+			<choose>
+				<when test="cd_state_sale == 2">
+					AND CD_STATE_SALE = 2
+				</when>
+				<when test="cd_state_sale == 3">
+					AND CD_STATE_SALE = 3
+				</when>
+				<when test="cd_state_sale == 9">
+					AND CD_STATE_SALE = 9
+				</when>
+				<otherwise>
+					AND CD_STATE_SALE = 1
+				</otherwise>
+			</choose>
+			<if test="searchWord != null and searchWord != ''">
+				AND SLE_NM LIKE '%' || #{searchWord} || '%'
+			</if>
+	</sql>
+	
+</mapper>

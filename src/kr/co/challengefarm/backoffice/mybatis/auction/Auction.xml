@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.backoffice.mybatis.auction.Auction">
+	
+	<update id="update" parameterType="auctionDto">
+		UPDATE
+			TB_ACT
+		SET
+			CD_STATE_ACT	= #{cd_state_act}
+			, REJECT		= #{reject}
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</update>
+	
+	<select id="selectImg" parameterType="auctionDto" resultType="auctionDtlImgDto">
+		SELECT
+			IMG
+		FROM
+			TB_ACT_IMG
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</select>
+	
+	<select id="select" parameterType="auctionDto" resultType="auctionDto">
+		SELECT
+			TB_ACT.SEQ_ACT
+			,TB_ACT.ACT_NM
+			, TB_ACT.PRICE
+			, TB_ACT.DESCES
+			, TB_ACT.IMG
+			, TB_ACT.BUY_YEAR
+			, TB_ACT.ACT_STATE
+			, TO_CHAR(TB_ACT.DT_ACT_START, 'YYYY-MM-DD') dt_act_start
+			, TO_CHAR(TB_ACT.DT_ACT_END, 'YYYY-MM-DD') dt_act_end
+			, TB_ACT.CD_STATE_ACT
+			, TB_ACT.REJECT
+			, TB_MBR.MBR_NM
+			, TB_MBR.EMAIL
+		FROM
+			TB_ACT
+			LEFT JOIN TB_MBR
+			ON
+				TB_ACT.REGISTER = TB_MBR.SEQ_MBR
+		WHERE
+			SEQ_ACT = #{seq_act}
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="auctionDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY DT_ACT_START) rnum
+				, TB_ACT.SEQ_ACT
+				, TB_ACT.ACT_NM
+				, TB_ACT.PRICE
+				, TB_ACT.DESCES
+				, TB_ACT.IMG
+				, TB_ACT.BUY_YEAR
+				, TB_ACT.ACT_STATE
+				, TO_CHAR(TB_ACT.DT_ACT_START, 'YYYY-MM-DD') dt_act_start
+				, TO_CHAR(TB_ACT.DT_ACT_END, 'YYYY-MM-DD') dt_act_end
+				, TB_ACT.SUCCESS
+				, DECODE(TB_ACT.CD_STATE_ACT, 0, '대기', 1, '승인', '반려') cd_state_act
+				, TB_MBR.MBR_NM
+			FROM
+				TB_ACT
+				LEFT JOIN TB_MBR
+				ON
+					TB_MBR.SEQ_MBR = TB_ACT.REGISTER
+			WHERE
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_ACT)
+		FROM
+			TB_ACT
+		WHERE
+			<include refid="whereCount" />
+	</select>
+	
+	<sql id="where">
+		CD_STATE_ACT = #{cd_state_act}
+	</sql>
+	
+	<sql id="whereCount">
+		CD_STATE_ACT = #{cd_state_act}
+		<if test="success != 'Y' and success != 'N' ">
+			AND SUCCESS IS NULL
+		</if>
+		<if test="success == 'Y' or success == 'N' ">
+			AND SUCCESS = #{success}
+		</if>
+	</sql>
+</mapper>

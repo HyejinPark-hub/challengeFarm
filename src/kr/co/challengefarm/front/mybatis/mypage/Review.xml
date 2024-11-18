@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.mypage.Review">
+
+	<insert id="insert" parameterType="reviewDto">
+		INSERT INTO TB_REV
+			(SEQ_REV, SEQ_BUY_DTL, SEQ_SLE, SEQ_MBR, SEQ_SLL, CONTENT, RATING, IMG, SLL_NM, DT_REG, REGISTER)
+		VALUES
+			(#{seq_rev}, #{seq_buy_dtl}, #{seq_sle}, #{seq_mbr}, #{seq_sll}, #{content}, #{rating}, #{img}, #{sll_nm}, SYSDATE, #{register})
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_REV.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="select" parameterType="saleDto" resultType="saleDto">
+		SELECT 
+			sle.SEQ_SLE
+			,sle.IMG 
+			,sle.SLE_NM 
+			,sle.COLOR
+			,sle.SIZE_NM size_name 
+			,dtl.COUNT
+			,dtl.SEQ_BUY_DTL
+			,dtl.SIZE_NM 
+			,sll.SEQ_SLL 
+			,sll.SLL_NM 
+		FROM 
+			TB_SLE sle
+		JOIN 
+			TB_BUY_DTL dtl ON sle.SEQ_SLE = dtl.SEQ_SLE
+		JOIN 
+			TB_SLL sll ON sle.REGISTER = sll.SEQ_SLL
+		WHERE 
+			sle.SEQ_SLE = #{seq_sle}
+		AND
+			dtl.SEQ_BUY_DTL = #{seq_buy_dtl}
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ROWNUM)
+		FROM 
+			TB_REV rev
+		JOIN 
+			TB_SLE sle ON rev.SEQ_SLE = sle.SEQ_SLE	
+		WHERE 
+			rev.SEQ_MBR = #{register}
+		AND
+			rev.FLG_DELETE		IS NULL
+		AND
+			rev.FLG_SLE_DELETE	IS NULL
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="reviewDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT 
+				/*+ first_rows(10) */ ROW_NUMBER() OVER (ORDER BY rev.DT_REG DESC) rnum
+				,sle.IMG sle_img 
+				,sle.SLE_NM 
+				,sle.COLOR 
+				,sle.SIZE_NM size_name
+				,(SELECT dtl.SIZE_NM FROM TB_BUY_DTL dtl WHERE dtl.SEQ_BUY_DTL = rev.SEQ_BUY_DTL) size_nm
+				,(SELECT dtl.COUNT FROM TB_BUY_DTL dtl WHERE dtl.SEQ_BUY_DTL = rev.SEQ_BUY_DTL) count
+				,rev.SEQ_REV 
+				,rev.SEQ_SLE 
+				,rev.CONTENT
+				,rev.RATING
+				,rev.IMG 
+				,rev.SLL_NM 
+				,TO_CHAR(rev.DT_REG, 'YYYY-MM-DD') dt_reg
+			FROM 
+				TB_REV rev
+			JOIN 
+				TB_SLE sle ON rev.SEQ_SLE = sle.SEQ_SLE	
+			WHERE 
+				rev.SEQ_MBR = #{register}
+			AND
+				rev.FLG_DELETE		IS NULL
+			AND
+				rev.FLG_SLE_DELETE	IS NULL
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<!-- 
+	<select id="selectReview" parameterType="reviewDto" resultType="reviewDto">
+		SELECT 
+			sle.IMG, 
+			sle.SLE_NM, 
+			sle.COLOR, 
+			sle.SIZE_NM, 
+			rev.SEQ_REV, 
+			rev.SEQ_SLE, 
+			rev.CONTENT,
+			rev.RATING, 
+			rev.IMG, 
+			rev.SLL_NM, 
+			TO_CHAR(rev.DT_REG, 'YYYY-MM-DD') dt_reg
+		FROM 
+			TB_REV rev
+		JOIN 
+			TB_SLE sle ON rev.SEQ_SLE = sle.SEQ_SLE	
+		WHERE 
+			rev.SEQ_MBR = #{seq_mbr}
+		AND
+			rev.FLG_DELETE		IS NULL
+		AND
+			rev.FLG_SLE_DELETE	IS NULL
+	</select>
+	 -->
+</mapper>

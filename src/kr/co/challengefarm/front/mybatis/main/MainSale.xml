@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.main.MainSale">
+
+	<select id="closingAuctionList" resultType="mainSaleDto">
+		SELECT *
+		FROM (
+			SELECT
+				act.SEQ_ACT
+				, act.ACT_NM
+	 			, act.IMG
+				, TO_CHAR(act.DT_ACT_END, 'YYYY-MM-DD') dt_act_end
+			FROM
+				TB_ACT act
+			WHERE
+				act.CD_STATE_ACT = 1
+			AND
+				TRUNC(act.DT_ACT_END - SYSDATE) >= 0
+			ORDER BY
+				DT_ACT_END ASC
+		<![CDATA[
+		) WHERE ROWNUM <= 4
+		]]>
+	</select>
+	
+	<select id="popularAuction" resultType="mainSaleDto">
+		SELECT *
+		FROM (
+			SELECT
+				act.SEQ_ACT
+				, act.ACT_NM
+				, act.PRICE
+	 			, act.IMG
+				, TO_CHAR(act.DT_ACT_END, 'MM/DD/YYYY') dt_act_end
+				, act.HEART
+				, (SELECT COUNT(*) FROM TB_BID bid WHERE bid.SEQ_ACT = act.SEQ_ACT AND (bid.FLG_GIVEUP IS NULL OR bid.FLG_GIVEUP = 'N')) bid_cnt
+			FROM
+				TB_ACT act
+			LEFT JOIN TB_HRT hrt
+			ON
+				hrt.SEQ_ACT		= act.SEQ_ACT
+			AND hrt.FLG_CANCEL	= 'N'
+			WHERE
+				act.CD_STATE_ACT = 1
+			ORDER BY
+				bid_cnt DESC
+				, act.HEART DESC
+		) WHERE ROWNUM = 1
+	</select>
+	
+	<select id="mainSaleList" parameterType="mainSaleDto" resultType="mainSaleDto">
+		SELECT 
+			*
+		FROM (
+			SELECT
+				TB_SLE.SEQ_SLE,
+				TB_SLE.SLE_NM,
+				(SELECT COALESCE(FLOOR(SUM(TB_REV.RATING) / NULLIF(COUNT(TB_REV.RATING), 0)), 0)
+					FROM TB_REV
+				 WHERE TB_REV.SEQ_SLE = TB_SLE.SEQ_SLE) rating,
+				TB_SLE.IMG,
+				TB_SLE.PRICE_COST,
+				TB_SLE.HEART,
+				TB_SLE.DT_REG,
+				TB_SLE.DISCOUNT,
+				TB_HRT.FLG_CANCEL
+			FROM
+				TB_SLE
+				LEFT JOIN TB_HRT
+				ON
+					TB_HRT.SEQ_SLE			= TB_SLE.SEQ_SLE
+					AND TB_HRT.SEQ_MBR		= #{seq_mbr}
+					AND TB_HRT.FLG_CANCEL	= 'N'
+			<if test="type == 'heart'">
+			ORDER BY HEART DESC
+			</if>
+			<if test="type == 'dt_reg'">
+			ORDER BY DT_REG DESC
+			</if>
+			<if test="type == 'discount'">
+			ORDER BY DISCOUNT DESC
+			</if>
+			)
+		<if test="type == 'heart'">
+		<![CDATA[
+		WHERE ROWNUM <= 8
+		]]>
+		</if>
+		<if test="type == 'dt_reg' || type == 'discount'">
+		<![CDATA[
+		WHERE ROWNUM <= 4
+		]]>
+		</if>
+	</select>
+
+</mapper>

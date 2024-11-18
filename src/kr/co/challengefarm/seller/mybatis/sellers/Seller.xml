@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.seller.mybatis.sellers.Seller">
+	
+	<update id="changePasswd" parameterType="sellerDto">
+		UPDATE TB_SLL
+		SET
+			PASSWD = #{passwd}
+		WHERE
+			SLL_NM			= #{sll_nm}
+			AND CORP_NM		= #{corp_nm}
+			AND CORP_NUM	= #{corp_num}
+			AND PHONE		= #{phone}
+			AND CD_STATE	= 1
+	</update>
+	
+	<select id="findPasswd" parameterType="sellerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PASSWD)
+		FROM
+			TB_SLL
+		WHERE
+			ID				= #{id}
+			AND CORP_NM		= #{corp_nm}
+			AND CORP_NUM	= #{corp_num}
+			AND PHONE		= #{phone}
+			AND CD_STATE	= 1
+	</select>
+	
+	<select id="findId" parameterType="sellerDto" resultType="sellerDto">
+		SELECT
+			ID
+			, SLL_NM
+		FROM
+			TB_SLL
+		WHERE
+			SLL_NM			= #{sll_nm}
+			AND CORP_NM		= #{corp_nm}
+			AND CORP_NUM	= #{corp_num}
+			AND PHONE		= #{phone}
+			AND CD_STATE	= 1
+	</select>
+	
+	<select id="selectPhone" parameterType="sellerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(PHONE)
+		FROM
+			TB_SLL
+		WHERE
+			PHONE = #{phone}
+	</select>
+	
+	<insert id="insert" parameterType="sellerDto">
+		INSERT INTO TB_SLL
+			(SEQ_SLL, ID, PASSWD, CD_STATE, SLL_NM, EMAIL, PHONE, CORP_NM, CORP_NUM, CORP_BIRTHDAY, CORP_CEO, POST, ADDR1, ADDR2, INTRO, DT_REG, REGISTER)
+		VALUES
+			(#{seq_sll}, #{id}, #{passwd}, 0, #{sll_nm}, #{email}, #{phone}, #{corp_nm}, #{corp_num}, #{corp_birthday}, #{corp_ceo}, #{post}, #{addr1}, #{addr2}, #{intro}, SYSDATE, #{register})
+	</insert>
+	
+	<update id="update" parameterType="sellerDto">
+		UPDATE
+			TB_SLL
+		SET
+			DT_UPT	= SYSDATE
+			<if test="email != null and email != ''">
+			, EMAIL	= #{email}
+			</if>
+			<if test="phone != null and phone != ''">
+			, PHONE	= #{phone}
+			</if>
+			<if test="corp_nm != null and corp_nm != ''">
+			, CORP_NM	= #{corp_nm}
+			</if>
+			<if test="corp_ceo != null and corp_ceo != ''">
+			, CORP_CEO	= #{corp_ceo}
+			</if>
+			, UPDATER = #{updater}
+			<if test="post != null and post != ''">
+			, POST		= #{post}
+			</if>
+			<if test="addr1 != null and addr1 != ''">
+			, ADDR1		= #{addr1}
+			</if>
+			<if test="addr2 != null and addr2 != ''">
+			, ADDR2		= #{addr2}
+			</if>
+			<if test="intro != null and intro != ''">
+			, INTRO	= #{intro}
+			</if>
+		WHERE
+			SEQ_SLL	= #{seq_sll}
+	</update>
+	
+	<update id="updateState" parameterType="sellerDto">
+		UPDATE
+			TB_SLL
+		SET
+			CD_STATE = 1
+		WHERE
+			CD_STATE	= 0
+			AND EMAIL	= #{email}
+			<![CDATA[
+			AND DT_REG >= SYSDATE - INTERVAL '10' MINUTE
+			]]> 
+	</update>
+	
+	<update id="deleteState" parameterType="sellerDto">
+		UPDATE
+			TB_SLL
+		SET
+			CD_STATE = 8
+		WHERE
+			CD_STATE = 1
+			AND SEQ_SLL = #{seq_sll}
+	</update>
+		
+	<select id="select" parameterType="sellerDto" resultType="sellerDto">
+		SELECT
+			SEQ_SLL, ID, PASSWD, CD_STATE, SLL_NM, EMAIL, PHONE, CORP_NM, CORP_NUM, CORP_BIRTHDAY, CORP_CEO, POST, ADDR1, ADDR2, INTRO, DT_REG, REGISTER
+		FROM
+			TB_SLL
+		WHERE
+			SEQ_SLL = #{seq_sll}
+	</select>
+	
+	<select id="selectPasswd" parameterType="sellerDto" resultType="sellerDto">
+		SELECT
+			PASSWD
+		FROM
+			TB_SLL
+		WHERE
+			SEQ_SLL = #{seq_sll}
+	</select>
+	
+	<update id="updatePasswd" parameterType="sellerDto">
+		UPDATE
+			TB_SLL
+		SET
+			PASSWD		= #{passwd}
+			, UPDATER	= #{updater}
+			, DT_UPT	= SYSDATE
+		WHERE
+			SEQ_SLL		= #{seq_sll}
+	</update>
+	
+	<select id="selectDuplicate" parameterType="sellerDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			TB_SLL
+		WHERE
+			ID = #{id}
+	</select>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_SLL.NEXTVAL FROM DUAL
+	</select>
+	
+</mapper>

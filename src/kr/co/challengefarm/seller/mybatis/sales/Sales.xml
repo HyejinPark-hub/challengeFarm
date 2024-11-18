@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.seller.mybatis.sales.Sales">
+	
+	<select id="month" parameterType="pagingDto" resultType="buyDetailDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				TO_CHAR(dtl.DT_REG, 'YYYY-MM') dt_reg
+			FROM
+				TB_BUY_DTL dtl
+				LEFT JOIN TB_BUY_MST mst
+				ON
+					mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+					AND mst.CD_STATE_PAY = 'Y'
+				LEFT JOIN TB_SLE sle
+				ON
+					dtl.SEQ_SLE = sle.SEQ_SLE
+				WHERE
+					sle.REGISTER = #{register}
+			)
+		GROUP BY
+			DT_REG
+		ORDER BY
+			DT_REG DESC
+	</select>
+	
+	<select id="list" parameterType="pagingDto" resultType="buyDetailDto">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				/*+ FIRST_ROWS(10) */ ROW_NUMBER() OVER (ORDER BY DTL.DT_REG DESC) rnum
+				, dtl.SEQ_SLE
+				, dtl.COUNT
+				, dtl.PRICE
+				, dtl.SIZE_NM size_num
+				, TO_CHAR(dtl.DT_REG, 'YYYY-MM-DD') dt_reg
+				, sle.SLE_NM
+				, sle.SIZE_NM
+				, sle.REGISTER
+				, (SELECT MBR_NM FROM TB_MBR mbr WHERE dtl.register = mbr.SEQ_MBR) mbr_nm
+			FROM
+				TB_BUY_DTL dtl
+				LEFT JOIN TB_BUY_MST mst
+				ON
+					mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+					AND mst.CD_STATE_PAY = 'Y'
+				LEFT JOIN TB_SLE sle
+				ON
+					dtl.SEQ_SLE = sle.SEQ_SLE
+			WHERE
+				sle.REGISTER = #{register}
+				<include refid="where" />
+			)
+		<![CDATA[
+		WHERE
+			rnum >= (${currentPage} - 1) * ${linePerPage} + 1 AND rnum <= ${currentPage} * ${linePerPage}
+		]]> 
+		ORDER BY
+			rnum
+	</select>
+	
+	<sql id="where">
+		<if test="dt_reg != '' and dt_reg != null">
+			<![CDATA[
+			AND ( dtl.DT_REG >= TO_DATE(#{dt_reg}, 'YYYY-MM-DD HH24:MI:SS') AND dtl.DT_REG < ADD_MONTHS(TO_DATE(#{dt_reg}, 'YYYY-MM-DD HH24:MI:SS'), 1) )
+			]]>
+		</if>
+	</sql>
+		
+	<select id="price" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			SUM(mst.BUY_PRICE)
+		FROM
+			TB_BUY_DTL dtl
+			LEFT JOIN TB_BUY_MST mst
+			ON
+				mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+				AND mst.CD_STATE_PAY = 'Y'
+			LEFT JOIN TB_SLE sle
+			ON
+				dtl.SEQ_SLE = sle.SEQ_SLE
+		WHERE
+			sle.REGISTER = #{register}
+			<include refid="where" />
+	</select>
+	
+	<select id="count" parameterType="pagingDto" resultType="java.lang.Integer">
+		SELECT
+			COUNT(dtl.SEQ_BUY_DTL)
+		FROM
+			TB_BUY_DTL dtl
+			LEFT JOIN TB_BUY_MST mst
+			ON
+				mst.SEQ_BUY_MST = dtl.SEQ_BUY_MST
+				AND mst.CD_STATE_PAY = 'Y'
+			LEFT JOIN TB_SLE sle
+			ON
+				dtl.SEQ_SLE = sle.SEQ_SLE
+		WHERE
+			sle.REGISTER = #{register}
+			<include refid="where" />
+	</select>
+	
+</mapper>

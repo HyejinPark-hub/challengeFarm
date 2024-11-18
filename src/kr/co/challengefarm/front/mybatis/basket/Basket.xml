@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.challengefarm.front.mybatis.basket.Basket">
+	
+	<update id="updateState" parameterType="basketDto">
+		UPDATE TB_BSK
+		SET
+			CD_STATE_PAY 	= #{cd_state_pay}
+			, DT_UPT		= SYSDATE
+			, UPDATER		= #{updater}
+		WHERE
+			SEQ_MBR			= #{seq_mbr}
+			AND CD_STATE_PAY IS NULL
+			AND COUNT > 0
+	</update>
+	
+	<select id="selectState" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_BSK)
+		FROM
+			TB_BSK
+		WHERE
+			SEQ_MBR			= #{seq_mbr}
+			AND CD_STATE_PAY IS NULL
+			AND COUNT > 0
+	</select>
+		
+	<select id="info" resultType="memberDto">
+		SELECT
+			MBR_NM
+			, PHONE
+			, POST
+			, ADDR1
+			, ADDR2
+		FROM
+			TB_MBR
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+			AND CD_STATE = 1
+	</select>
+	
+	<select id="order" resultType="basketDto">
+		SELECT
+			TB_BSK.SEQ_BSK
+			, TB_BSK.SEQ_SLE
+			, TB_BSK.SLE_NM
+			, TB_BSK.SIZE_NM
+			, TB_BSK.PRICE
+			, TB_BSK.COUNT
+			, TB_BSK.IMG
+			, TB_SLE.DISCOUNT
+			, TB_SLE.SIZE_NM size_name
+		FROM
+			TB_BSK
+		INNER JOIN
+			TB_SLE
+		ON
+			TB_BSK.SEQ_SLE = TB_SLE.SEQ_SLE
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+			AND SEQ_BSK IN
+			<foreach collection="products" item="arr" open="(" close=")" separator=",">
+				#{arr}
+			</foreach>
+		ORDER BY
+			TB_BSK.REGISTER DESC
+			, TB_BSK.SEQ_SLE DESC
+	</select>
+	
+	<select id="list" resultType="basketDto">
+		SELECT
+			TB_BSK.SEQ_BSK
+			, TB_BSK.SEQ_SLE
+			, TB_BSK.SLE_NM
+			, TB_BSK.SIZE_NM
+			, TB_BSK.PRICE
+			, TB_BSK.COUNT
+			, TB_BSK.IMG
+			, TB_SLE.DISCOUNT
+			, TB_SLE.SIZE_NM size_name
+		FROM
+			TB_BSK
+		INNER JOIN
+			TB_SLE
+		ON
+			TB_BSK.SEQ_SLE = TB_SLE.SEQ_SLE
+		WHERE
+			SEQ_MBR = #{seq_mbr}
+			AND CD_STATE_PAY IS NULL
+			AND COUNT > 0
+		ORDER BY
+			TB_BSK.REGISTER DESC
+			, TB_BSK.SEQ_SLE DESC
+	</select>
+
+	<update id="update" parameterType="basketDto">
+		UPDATE TB_BSK
+		SET
+			COUNT = COUNT + #{count}
+			, DT_UPT	= SYSDATE
+			, UPDATER	= #{updater}
+		WHERE
+			SEQ_MBR		= #{seq_mbr}
+			AND SEQ_SLE	= #{seq_sle}
+			AND SIZE_NM	= #{size_nm}
+			AND CD_STATE_PAY IS NULL
+	</update>
+
+	<select id="select" resultType="java.lang.Integer">
+		SELECT
+			COUNT(SEQ_BSK)
+		FROM
+			TB_BSK
+		WHERE
+			SEQ_MBR		= #{seq_mbr}
+			AND SEQ_SLE	= #{seq_sle}
+			AND SIZE_NM	= #{size_nm}
+			AND CD_STATE_PAY IS NULL
+	</select>
+
+	<insert id="insert" parameterType="basketDto">
+		INSERT INTO TB_BSK
+			(SEQ_BSK, SEQ_MBR, SEQ_SLE, SLE_NM, SIZE_NM, PRICE, COUNT, IMG, CD_STATE_PAY, DT_REG, REGISTER, DT_UPT, UPDATER)
+		VALUES
+			(#{seq_bsk}, #{seq_mbr}, #{seq_sle}, #{sle_nm}, #{size_nm}, #{price}, #{count}, #{img}, NULL, SYSDATE, #{register}, NULL, NULL)
+	</insert>
+	
+	<select id="sequence" resultType="java.lang.Integer">
+		SELECT SQ_SEQ_BSK.NEXTVAL FROM DUAL
+	</select>
+	
+</mapper>
